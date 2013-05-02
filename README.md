@@ -26,7 +26,7 @@ rpmout is a 64bit compiled on Fedora 18 binary, go version devel +d58997478ec6 M
 ###Sample output###
 
 ####HTML####
-[sample.html.gz]()https://github.com/gnewton/rpmout/blob/master/sample.html.gz) is an example, from running 'rpmout /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big page (~1.4MB ungziped).
+[sample.html.gz](https://github.com/gnewton/rpmout/blob/master/sample.html.gz) is an example, from running 'rpmout /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big page (~1.4MB ungziped).
 
 ####LaTeX####
 [sample.tex.gz](https://github.com/gnewton/rpmout/blob/master/sample.tex.gz) is an example, from running 'rpmout -outputFormat=latex /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big document. The PDF is sample.pdf.gz, has 700 pages and is  ~1.3MB
