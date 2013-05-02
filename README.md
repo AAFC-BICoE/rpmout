@@ -19,4 +19,6 @@ Example:  ./rpmout -outputFormat=html /opt /usr/local
 
 Note that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your path
 
-rpmout is a 64bit compiled on Fedora 17 binary
+rpmout is a 64bit compiled on Fedora 18 binary, go version devel +d58997478ec6 Mon Apr 08 00:09:35 2013 -0700 linux/amd64
+
+sample.html.gz is an example, from running 'rpmout /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big page (~1.4MB ungziped).
