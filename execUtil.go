@@ -7,12 +7,17 @@ import (
 	"bufio"
 )
 
-func runExec(commandAndArgs []string) (chan string, chan bool){
+type StringInfo struct{
+	val string
+	done bool
+}
+
+
+func runExec(commandAndArgs []string) (chan *StringInfo){
 	command := commandAndArgs[0]
 	args := commandAndArgs[1:]
 
-	lines := make(chan string, 500)
-	done := make(chan bool)
+	lines := make(chan *StringInfo, 1024)
 
 	cmd := exec.Command(command, args[0:]...)
 	//cmd := exec.Command("rpm", "-q")
@@ -27,22 +32,32 @@ func runExec(commandAndArgs []string) (chan string, chan bool){
 	}
 
 	go func(){
+		var si *StringInfo
 		r := bufio.NewReader(stdout)
 		s, e := Readln(r)
 		for e == nil {
 			//fmt.Println(s)
-			lines <- s
+			si = new(StringInfo)
+			si.val = s
+			si.done = false
+			lines <- si
+			//fmt.Println("runExec ", s)
 			s,e = Readln(r)
 		}
+		si = new(StringInfo)
+		si.done = true
+		tmp := "END"
+		si.val = tmp
+		//fmt.Println("runExec ", si.done, " ", si.val, " ***************************************")
+		lines <- si
+		close(lines)
 		stdout.Close()
 		if err := cmd.Wait(); err != nil {
 			log.Fatal(err)
 		}
-
-		done <- true
 	}()
 
-	return lines, done
+	return lines
 }
 
 
