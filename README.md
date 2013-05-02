@@ -33,3 +33,13 @@ rpmout is a 64bit compiled on Fedora 18 binary, go version devel +d58997478ec6 M
 
 ###Idea###
 The original single threaded Ruby version I prototyped takes about 4 1/2 minutes to run. This naively written Go implementation takes <22 seconds to do the same thing..
+
+###TODO###
+
+* testing
+* more idiomatic Go
+* user selection of rpm tags, beyond the defaults?
+* list dependencies?
+* list provides?
+* show location of any executables?
+* show location of any libraries?
