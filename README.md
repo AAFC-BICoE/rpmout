@@ -12,11 +12,11 @@ For example: users want to know what is installed in the bioinformatics install 
 This fragment is meant to be embedded into a static HTML page that wrapes it with the appropriate local style, titles it, etc.
 
 ###Usage###
-	 rpmout <args> <rootDir0>...<rootDirN>
-	 default <rootDir>=/
-  Args:
-    -outputFormat="html": Values: html|json|txt|latex
-  Example:  rpmout -outputFormat=html /opt /usr/local
+     rpmout <args> <rootDir0>...<rootDirN>
+     default <rootDir>=/
+     Args:
+     -outputFormat="html": Values: html|json|txt|latex
+     Example:  rpmout -outputFormat=html /opt /usr/local
 
 ###Misc###
 Note that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your PATH
