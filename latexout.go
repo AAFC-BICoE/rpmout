@@ -11,15 +11,23 @@ type LaTeXOut struct{
 
 func (lo LaTeXOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 	fmt.Println("\\documentclass[11pt,landscape]{article}")
-	fmt.Println("\\usepackage[landscape,paperwidth=11in,paperheight=8.5in]{geometry}")
-	fmt.Println("\\usepackage{longtable}")
+	fmt.Println("")
+	fmt.Println("\\usepackage[landscape,paperwidth=10in,paperheight=8.5in]{geometry}")
+	fmt.Println("\\usepackage{longtable,microtype,savetrees}")
 	fmt.Println("\\usepackage[hyphens]{url}")
+	fmt.Println("\\usepackage{seqsplit}") 
 
-
+	fmt.Println("")
 	fmt.Println("\\oddsidemargin -.5cm")
 	fmt.Println("\\evensidemargin -.5cm")
-
-
+	fmt.Println("")
+	fmt.Println("\\newcommand\\foo[2]{%")
+	fmt.Println("\\begin{minipage}{#1}")
+	fmt.Println("\\seqsplit{#2}")
+	fmt.Println("\\end{minipage}")
+	fmt.Println("}")
+	fmt.Println("")
+	fmt.Println("")
 	fmt.Println("\\begin{document}")
 	fmt.Println("\\thispagestyle{empty}")
 	fmt.Println("\\pagestyle{empty}")
@@ -48,7 +56,7 @@ func (lo LaTeXOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 		//fmt.Println("\\newline")
 		//	fmt.Println("\\hline")
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["name"]) + "&")
-		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["version"]) + "&")
+		fmt.Println("\\foo{1.4cm}{" + escapeLatex(rpmInfo[s[r]].Tags["version"]) + "}&")
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["summary"]) + "&")
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["description"]) + "&")
 		fmt.Println("\\url{" + escapeLatex(rpmInfo[s[r]].Tags["url"]) + "}&")
