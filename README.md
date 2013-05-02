@@ -23,4 +23,6 @@ rpmout is a 64bit compiled on Fedora 18 binary, go version devel +d58997478ec6 M
 
 sample.html.gz is an example, from running 'rpmout /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big page (~1.4MB ungziped).
 
-sample.tex.gz is an example, from running 'rpmout -outputFormat=latex /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big document. The PDF is sample.pdf.gz, has 700 pages and is  ~1.3MB.
+sample.tex.gz is an example, from running 'rpmout -outputFormat=latex /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big document. The PDF is sample.pdf.gz, has 700 pages and is  ~1.3MB
+
+The original single threaded Ruby version I prototyped takes about 4 1/2 minutes to run. This naively written Go implementation takes <22 seconds to do the same thing..
