@@ -9,13 +9,13 @@ This fragment is meant to be embedded into a static HTML page that puts it into 
 
 rpmout can also generate json, plain text (mostly for debugging) and a LaTeX document with all the information in a (usually) large, page-spanning table.
 
-Usage of ./rpmout:
-	 ./rpmout <args> <rootDir0>...<rootDirN>
+Usage of rpmout:
+	 rpmout <args> <rootDir0>...<rootDirN>
 	 default <rootDir>: /
 Args:
   -outputFormat="html": Values: html|json|txt|latex
 
-Example:  ./rpmout -outputFormat=html /opt /usr/local
+Example:  rpmout -outputFormat=html /opt /usr/local
 
 Note that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your path
 
