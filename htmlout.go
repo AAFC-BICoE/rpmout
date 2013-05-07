@@ -21,7 +21,8 @@ func (ho HtmlOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 		//_ = t.ExecuteTemplate(os.Stdout, "T", rpmInfo[s[r]].name)
 		rpm := rpmInfo[s[r]]
 		fmt.Println("<li>")
-		fmt.Println("<b>" + html.EscapeString(rpm.Tags["summary"])+"</b>")
+		fmt.Println("<b>" + html.EscapeString(rpm.Tags["name"])+"</b>")
+		fmt.Println(" - " + html.EscapeString(rpm.Tags["summary"]))
 		fmt.Println("<br> V." +  html.EscapeString(rpm.Tags["version"]))
 		fmt.Println("<br><b><tt>" + html.EscapeString(rpm.Name) +  "</tt></b>")
 		_, ok := rpm.Tags["description"]
