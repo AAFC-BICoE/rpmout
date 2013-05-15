@@ -63,7 +63,7 @@ type RpmWriter interface{
 
 
 var allRpmsExec = []string{"rpm", "-qa"}
-var numFindOfInterestRpmsWorkers = 8
+var numFindOfInterestRpmsWorkers = 1
 var numFindRpmTagsWorkers = 1
 
 var rpmWriter RpmWriter
@@ -76,7 +76,6 @@ func main(){
 	}
 
 	if !handleParameters(){
-		fmt.Println("---------- ", err)
 		log.Fatal("Bad parameters")
 	}
 
@@ -126,71 +125,48 @@ func makeRpmList()(chan *RpmInfo, error){
 	stringListChannel := runExec(allRpmsExec)
 
 	go func(){
-		finished := false
-		for !finished{
-			select{
-			case stringInfo := <- stringListChannel:
-				//fmt.Println("makeRpmList: [",  stringInfo.val, "] ", &stringInfo.val," ", stringInfo.done)
-				rpmInfo := new(RpmInfo)
-				if stringInfo.done{
-					finished = true
-					for i:=0; i<numFindOfInterestRpmsWorkers; i++{
-						rpmListChannel<- nil					
-					}
-					break
-				}else{
-
-					rpmInfo.Name = stringInfo.val
-					rpmInfo.Tags = make(map[string] string)
-					rpmListChannel<- rpmInfo
-				}
-			}
+		for stringInfo := range stringListChannel{
+			//fmt.Println("makeRpmList: [",  stringInfo.val, "] ", &stringInfo.val," ", stringInfo.done)
+			rpmInfo := new(RpmInfo)
+			rpmInfo.Name = stringInfo.val
+			rpmInfo.Tags = make(map[string] string)
+			rpmListChannel<- rpmInfo
 		}
+		close(rpmListChannel)
 	}()
 	return 	rpmListChannel, nil
 }
 
 func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo, )(chan *RpmInfo, error){
-	ofInterestChannel := make(chan *RpmInfo)
+	ofInterestChannel := make(chan *RpmInfo, 100)
 
 	for i:=0; i<numFindOfInterestRpmsWorkers; i++{
 		go func(){
-			finished := false
-			for !finished{
-				select{
-				case rpmInfo := <- rpmListChannel:
-					if rpmInfo == nil {
-						finished = true;
-						for j:=0; j<numFindRpmTagsWorkers; j++{
-							ofInterestChannel <- nil
-						}
-						break
-					}else{
-						//fmt.Println("findOfInterestRpms ", rpmInfo.name)
-						cmd := exec.Command(allRpmsExec[0], "-ql", rpmInfo.Name)
-						out,err := cmd.Output()
-						
-						if err != nil {
-							log.Fatal("jjjj ", err)
-						}
-						
-						lines := strings.Split(string(out), "\n")
-						done := false
-						for _, line := range lines{
-							if done{
-								break;
-							}
-							for _, dir := range dirsOfInterest{
-								if strings.Index(line, dir) == 0{
-									ofInterestChannel <- rpmInfo
-									done = true
-									//fmt.Println("findOfInterestRpms ********* ", rpmInfo.name)
-								}
-							}
+			for rpmInfo := range rpmListChannel{
+				//fmt.Println("findOfInterestRpms ", rpmInfo.Name)
+				cmd := exec.Command(allRpmsExec[0], "-ql", rpmInfo.Name)
+				out,err := cmd.Output()
+				
+				if err != nil {
+					log.Fatal("jjjj ", err)
+				}
+				
+				lines := strings.Split(string(out), "\n")
+				done := false
+				for _, line := range lines{
+					if done{
+						break;
+					}
+					for _, dir := range dirsOfInterest{
+						if strings.Index(line, dir) == 0{
+							ofInterestChannel <- rpmInfo
+							done = true
+							//fmt.Println("findOfInterestRpms ********* ", rpmInfo.Name)
 						}
 					}
 				}
 			}
+			close(ofInterestChannel)
 		}()
 	}
 	return 	ofInterestChannel, nil
@@ -206,38 +182,27 @@ func findRpmTags(ofInterestChannel chan *RpmInfo)(chan *RpmInfo, error){
 			numTags := random(100,400)
 			tagBuffer:= make([] *RpmInfo, numTags)
 			count :=0
-			finished := false
-			for !finished{
-				select{
-				case rpmInfo := <- ofInterestChannel:
-					if rpmInfo == nil {
-						finished = true;
-						if count > 0{
-							out := runCommand(tagBuffer, count)
-							parseAndSend(count, tagBuffer, out, tagInfoChannel)
-							//_ = runCommand(tagBuffer, count)
-							//fmt.Println("+++ ", " --- ", out)
-						}	
-						for j:=0; j<numFindRpmTagsWorkers; j++{
-							tagInfoChannel <- rpmInfo
-						}
-						break
-					}else{
-						//fmt.Println("\t findRpmTags ", rpmInfo.name)
-						//fmt.Println("--",count," ", rpmInfo.name)
-						if count >= numTags{
-							out := runCommand(tagBuffer, count)
-							parseAndSend(count, tagBuffer, out, tagInfoChannel)
-							//fmt.Println("+++ ", rpmInfo.name, " --- ", out)
-							count = 0
-							tagInfoChannel<- rpmInfo
-							
-						}
-						tagBuffer[count] = rpmInfo
-						count = count + 1
-					}
+			for rpmInfo := range ofInterestChannel{
+				//fmt.Println("\t findRpmTags ", rpmInfo.name)
+				//fmt.Println("--",count," ", rpmInfo.name)
+				if count >= numTags{
+					out := runCommand(tagBuffer, count)
+					parseAndSend(count, tagBuffer, out, tagInfoChannel)
+					//fmt.Println("+++ ", rpmInfo.name, " --- ", out)
+					count = 0
+					tagInfoChannel<- rpmInfo
+					
 				}
+				tagBuffer[count] = rpmInfo
+				count = count + 1
 			}
+			if count > 0{
+				out := runCommand(tagBuffer, count)
+				parseAndSend(count, tagBuffer, out, tagInfoChannel)
+				//_ = runCommand(tagBuffer, count)
+				//fmt.Println("+++ ", " --- ", out)
+			}
+			close(tagInfoChannel)
 		}()
 	}
 	return 	tagInfoChannel, nil
@@ -269,7 +234,6 @@ func parseAndSend(count int, tagInfoBuffer [] *RpmInfo, out string, tagInfoChann
 		}
 		tagInfoChannel<-tagInfoBuffer[i]
 	}
-	
 }
 
 func runCommand(tagBuffer []*RpmInfo, count int) string {
@@ -303,18 +267,9 @@ func makeArgs(cmd *exec.Cmd, tagBuffer []*RpmInfo, count int){
 
 func addResultsToMap(rpmMap map[string] *RpmInfo,
 	tagInfoChannel chan *RpmInfo){
-	
-	finished := false
-	for !finished{
-		select{
-		case rpmInfo := <- tagInfoChannel:
-			if rpmInfo == nil {
-				finished = true
-			}else{
-				rpmMap[strings.ToLower(rpmInfo.Name)] = rpmInfo
-				//fmt.Println(rpmInfo.name)
-			}
-		}
+	for rpmInfo := range tagInfoChannel{
+		rpmMap[strings.ToLower(rpmInfo.Name)] = rpmInfo
+		//fmt.Println("Adding to map ", rpmInfo.Name)
 	}
 }
 
