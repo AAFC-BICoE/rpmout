@@ -12,7 +12,7 @@ import(
 "math/rand"
 "time"
 "flag"
-
+"runtime"
 
 )
 
@@ -63,13 +63,14 @@ type RpmWriter interface{
 
 
 var allRpmsExec = []string{"rpm", "-qa"}
-var numFindOfInterestRpmsWorkers = 1
-var numFindRpmTagsWorkers = 1
+var numFindOfInterestRpmsWorkers = 6
+var numFindRpmTagsWorkers = 2
 
 var rpmWriter RpmWriter
 
 
 func main(){
+	runtime.GOMAXPROCS(8)
 	_, err := exec.LookPath(allRpmsExec[0])
 	if err != nil {
 		log.Fatal("'", allRpmsExec[0],"' is not in your path: needed to run; it is usually in '/usr/bin/rpm'")
@@ -96,12 +97,24 @@ func main(){
 		log.Fatal("jjjj ", err)
 	}
 
-	ofInterestChannel, err := findOfInterestRpms(dirsOfInterest, rpmListChannel)
+	ofInterestChannel, ofInterestDoneChannel, err := findOfInterestRpms(dirsOfInterest, rpmListChannel)
 
-	tagInfoChannel, err :=	findRpmTags(ofInterestChannel)
+	tagInfoChannel,tagInfoDoneChannel, err := findRpmTags(ofInterestChannel)
 
 	rpmInfoMap := make(map[string] *RpmInfo, 200)
-	addResultsToMap(rpmInfoMap, tagInfoChannel)
+	addResultsDoneChannel := addResultsToMap(rpmInfoMap, tagInfoChannel)
+
+	for i:=0; i<numFindOfInterestRpmsWorkers; i++{
+		_ = <- ofInterestDoneChannel
+	}
+	close(ofInterestChannel)
+
+	for i:=0; i<numFindRpmTagsWorkers; i++{
+		_ = <- tagInfoDoneChannel
+	}
+	close(tagInfoChannel)
+
+	_ = <- addResultsDoneChannel
 
 	mk := make([]string, len(rpmInfoMap))
 	i := 0
@@ -137,8 +150,9 @@ func makeRpmList()(chan *RpmInfo, error){
 	return 	rpmListChannel, nil
 }
 
-func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo, )(chan *RpmInfo, error){
+func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo, )(chan *RpmInfo, chan bool, error){
 	ofInterestChannel := make(chan *RpmInfo, 100)
+	doneChannel := make(chan bool, numFindOfInterestRpmsWorkers)
 
 	for i:=0; i<numFindOfInterestRpmsWorkers; i++{
 		go func(){
@@ -166,16 +180,17 @@ func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo, )
 					}
 				}
 			}
-			close(ofInterestChannel)
+			doneChannel <- true
 		}()
 	}
-	return 	ofInterestChannel, nil
+	return 	ofInterestChannel, doneChannel, nil
 }
 
 
 
-func findRpmTags(ofInterestChannel chan *RpmInfo)(chan *RpmInfo, error){
+func findRpmTags(ofInterestChannel chan *RpmInfo)(chan *RpmInfo, chan bool, error){
 	tagInfoChannel := make(chan *RpmInfo, 200)
+	doneChannel := make(chan bool, numFindRpmTagsWorkers)
 
 	for i:=0; i<numFindRpmTagsWorkers; i++{
 		go func(){
@@ -202,10 +217,10 @@ func findRpmTags(ofInterestChannel chan *RpmInfo)(chan *RpmInfo, error){
 				//_ = runCommand(tagBuffer, count)
 				//fmt.Println("+++ ", " --- ", out)
 			}
-			close(tagInfoChannel)
+			doneChannel <- true
 		}()
 	}
-	return 	tagInfoChannel, nil
+	return 	tagInfoChannel, doneChannel, nil
 }
 
 
@@ -266,11 +281,18 @@ func makeArgs(cmd *exec.Cmd, tagBuffer []*RpmInfo, count int){
 
 
 func addResultsToMap(rpmMap map[string] *RpmInfo,
-	tagInfoChannel chan *RpmInfo){
-	for rpmInfo := range tagInfoChannel{
-		rpmMap[strings.ToLower(rpmInfo.Name)] = rpmInfo
-		//fmt.Println("Adding to map ", rpmInfo.Name)
-	}
+	tagInfoChannel chan *RpmInfo) chan bool{
+	
+	doneChannel := make(chan bool)
+
+	go func(){
+		for rpmInfo := range tagInfoChannel{
+			rpmMap[strings.ToLower(rpmInfo.Name)] = rpmInfo
+			//fmt.Println("Adding to map ", rpmInfo.Name)
+		}
+		doneChannel <- true
+	}()
+	return doneChannel
 }
 
 
