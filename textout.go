@@ -9,7 +9,7 @@ type TextOut struct{
 
 }
 
-func (to TextOut) output(s []string, rpmInfo map[string] *RpmInfo) {
+func (to TextOut) output(s []string, rpmInfo map[string] *RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error{
 
 	for r := range s {	
 		fmt.Println("")
@@ -19,5 +19,7 @@ func (to TextOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 			fmt.Println("  " + k + ": " + v)
 		}
 	}
+
+	return nil
 
 }

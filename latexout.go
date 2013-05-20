@@ -9,7 +9,7 @@ type LaTeXOut struct{
 
 }
 
-func (lo LaTeXOut) output(s []string, rpmInfo map[string] *RpmInfo) {
+func (lo LaTeXOut) output(s []string, rpmInfo map[string] *RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error{
 	fmt.Println("\\documentclass[11pt,landscape]{article}")
 	fmt.Println("")
 	fmt.Println("\\usepackage[landscape,paperwidth=10in,paperheight=8.5in]{geometry}")
@@ -68,6 +68,8 @@ func (lo LaTeXOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 	fmt.Println("\\end{longtable}")
 	//fmt.Println("\\end{landscape}")
 	fmt.Println("\\end{document}")
+
+	return nil
 }
 
 func escapeLatex(v string) string{

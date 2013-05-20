@@ -32,6 +32,8 @@ func handleParameters() (bool){
 	switch outputFormat{
 	case "html":
 		rpmWriter = new(HtmlOut)
+	case "html2":
+		rpmWriter = new(HtmlOut2)
 	case "json":
 		rpmWriter = new(JsonOut)
 
@@ -49,7 +51,7 @@ func handleParameters() (bool){
 
 var outputFormat string
 func init() {
-	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|json|txt|latex")
+	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex")
 }
 
 type RpmInfo struct{
@@ -57,8 +59,9 @@ type RpmInfo struct{
 	Tags map[string]string
 }
 
+
 type RpmWriter interface{
-	output([]string, map[string] *RpmInfo)
+	output([]string, map[string] *RpmInfo, map[string]bool, map[string]*Node)(error)
 }
 
 
@@ -102,7 +105,13 @@ func main(){
 	tagInfoChannel,tagInfoDoneChannel, err := findRpmTags(ofInterestChannel)
 
 	rpmInfoMap := make(map[string] *RpmInfo, 200)
-	addResultsDoneChannel := addResultsToMap(rpmInfoMap, tagInfoChannel)
+	//rpmInfoMap2 := make(map[string] RpmInfo, 200)
+	groupSet := make(map[string]bool)
+	
+	var nodes map[string]*Node
+	nodes = make(map[string]*Node)
+
+	addResultsDoneChannel := addResultsToMap(rpmInfoMap, groupSet,tagInfoChannel, nodes)
 
 	for i:=0; i<numFindOfInterestRpmsWorkers; i++{
 		_ = <- ofInterestDoneChannel
@@ -116,14 +125,31 @@ func main(){
 
 	_ = <- addResultsDoneChannel
 
-	mk := make([]string, len(rpmInfoMap))
-	i := 0
-	for k, _ := range rpmInfoMap {
-		mk[i] = k
-		i++
+	/*
+	fmt.Println(h.Level0)
+	fmt.Println("============================================")
+	fmt.Println(h.Level1)
+	fmt.Println("===")
+
+	for _, node := range nodes {
+		fmt.Println("============================================")
+		fmt.Println(node.Name)
+		for _,leaf := range node.Children {
+			pkgList := leaf.Packages
+			pkg := pkgList.Front()
+			fmt.Println("\t",leaf.Name, " ", pkgList.Len())
+			for pkg != nil {
+				rpmInfo := pkg.Value.(RpmInfo)
+				fmt.Println("\t\t", rpmInfo.Name)
+				pkg = pkg.Next()
+			}
+		}
 	}
-	sort.Strings(mk)
-	rpmWriter.output(mk, rpmInfoMap)
+	fmt.Println("===")
+	//
+	 */
+		rpmWriter.output(sortStringKeyMap(rpmInfoMap), rpmInfoMap, groupSet, nodes)
+		//rpmWriter.output(rpmInfoMap, rpmInfoMap, groupSet, nodes)
 }
 
 
@@ -280,15 +306,14 @@ func makeArgs(cmd *exec.Cmd, tagBuffer []*RpmInfo, count int){
 
 
 
-func addResultsToMap(rpmMap map[string] *RpmInfo,
-	tagInfoChannel chan *RpmInfo) chan bool{
-	
+func addResultsToMap(rpmMap map[string] *RpmInfo, groupSet map[string]bool, tagInfoChannel chan *RpmInfo, nodes map[string]*Node) chan bool{
 	doneChannel := make(chan bool)
-
 	go func(){
 		for rpmInfo := range tagInfoChannel{
 			rpmMap[strings.ToLower(rpmInfo.Name)] = rpmInfo
+			groupSet[rpmInfo.Tags["group"]] = true
 			//fmt.Println("Adding to map ", rpmInfo.Name)
+			extractHierarchy(rpmInfo, nodes)
 		}
 		doneChannel <- true
 	}()
@@ -301,4 +326,30 @@ func random(min, max int) int {
 }
 
 
+func sortStringKeyMap2(m map[string] *struct{}) []string{
+	sm := make([]string, len(m))
+	return sm
+}
 
+//func sortStringKeyMap(m map[string]struct{}) []string{
+func sortStringKeyMap(m map[string] *RpmInfo) []string{
+	sm := make([]string, len(m))
+	i := 0
+	for k, _ := range m {
+		sm[i] = k
+		i++
+	}
+	sort.Strings(sm)
+	return sm
+}
+
+func sortStringKeyNodeMap(m map[string] *Node) []string{
+	sm := make([]string, len(m))
+	i := 0
+	for k, _ := range m {
+		sm[i] = k
+		i++
+	}
+	sort.Strings(sm)
+	return sm
+}
