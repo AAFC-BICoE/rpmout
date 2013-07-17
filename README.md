@@ -36,10 +36,11 @@ The original single threaded Ruby version I prototyped takes about 4 1/2 minutes
 
 ###TODO###
 
+* Move to Go package html/template, and allow the user to supply an arbitrary template for HTML output
 * testing
 * more idiomatic Go
 * user selection of rpm tags, beyond the defaults?
 * list dependencies?
 * list provides?
 * show location of any executables?
-* show location of any libraries?
+* show location of any libraries? 

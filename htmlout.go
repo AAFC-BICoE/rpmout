@@ -3,6 +3,7 @@ package main
 import(
 	"fmt"
 	"html"
+"sort"
 //"html/template"
 //"os"
 )
@@ -12,8 +13,19 @@ type HtmlOut struct{
 }
 
 
-func (ho HtmlOut) output(s []string, rpmInfo map[string] *RpmInfo) {
+func (ho HtmlOut) output(s []string, rpmInfo map[string] *RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error{
 	//t, _ := template.New("foo").Parse(`{{define "T"}}Hello, {{.}} how are you!{{end}}`)
+
+	groupSetList := make([]string, len(groupSet))
+	i:= 0
+	for g, _ := range groupSet {
+		groupSetList[i] = g
+		i++
+	}
+	sort.Strings(groupSetList)
+	for g := range groupSetList {	
+		fmt.Println("<br>[", groupSetList[g], "]")
+	}
 
 	fmt.Println("<ol>")
 	for r := range s {	
@@ -21,7 +33,8 @@ func (ho HtmlOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 		//_ = t.ExecuteTemplate(os.Stdout, "T", rpmInfo[s[r]].name)
 		rpm := rpmInfo[s[r]]
 		fmt.Println("<li>")
-		fmt.Println("<b>" + html.EscapeString(rpm.Tags["summary"])+"</b>")
+		fmt.Println("<b>" + html.EscapeString(rpm.Tags["name"])+"</b>")
+		fmt.Println(" - " + html.EscapeString(rpm.Tags["summary"]))
 		fmt.Println("<br> V." +  html.EscapeString(rpm.Tags["version"]))
 		fmt.Println("<br><b><tt>" + html.EscapeString(rpm.Name) +  "</tt></b>")
 		_, ok := rpm.Tags["description"]
@@ -46,4 +59,6 @@ func (ho HtmlOut) output(s []string, rpmInfo map[string] *RpmInfo) {
 	}
 	fmt.Println("</ol>")
 	fmt.Println("")
+
+	return nil
 }
