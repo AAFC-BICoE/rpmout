@@ -13,7 +13,8 @@ func (lo LaTeXOut) output(s []string, rpmInfo map[string]*RpmInfo, groupSet map[
 	fmt.Println("")
 	fmt.Println("\\usepackage[landscape,paperwidth=10in,paperheight=8.5in]{geometry}")
 	fmt.Println("\\usepackage{longtable,microtype,savetrees}")
-	fmt.Println("\\usepackage[hyphens]{url}")
+	//fmt.Println("\\usepackage[hyphens]{url}")
+	fmt.Println("\\usepackage{hyperref}")
 	fmt.Println("\\usepackage{seqsplit}")
 
 	fmt.Println("")
@@ -33,7 +34,7 @@ func (lo LaTeXOut) output(s []string, rpmInfo map[string]*RpmInfo, groupSet map[
 	//fmt.Println("\\tableofcontents")
 	//fmt.Println("\\newpage")
 	//fmt.Println("\\begin{landscape}")
-	fmt.Println("\\renewcommand*{\arraystretch}{1.4}")
+	fmt.Println("\\renewcommand*{\\arraystretch}{1.4}")
 	fmt.Println("\\begin{longtable}{|p{2cm}|p{1.4cm}|p{4cm}|p{5cm}|p{4cm}|p{3cm}|}")
 	fmt.Println("\\hline")
 	fmt.Println("\\textbf{Name}& \\textbf{Version}& \\textbf{Summary}& \\textbf{Description}& \\textbf{URL}& \\textbf{Install Time}\\\\")
@@ -59,7 +60,7 @@ func (lo LaTeXOut) output(s []string, rpmInfo map[string]*RpmInfo, groupSet map[
 		fmt.Println("\\foo{1.4cm}{" + escapeLatex(rpmInfo[s[r]].Tags["version"]) + "}&")
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["summary"]) + "&")
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["description"]) + "&")
-		fmt.Println("\\url{" + escapeLatex(rpmInfo[s[r]].Tags["url"]) + "}&")
+		fmt.Println("\\small \\url{" + escapeLatex(rpmInfo[s[r]].Tags["url"]) + "}&")
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["installtime"]))
 		fmt.Println("\\\\ \\hline")
 	}
