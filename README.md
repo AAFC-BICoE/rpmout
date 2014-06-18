@@ -16,6 +16,7 @@ This fragment is meant to be embedded into a static HTML page that wraps it with
      default <rootDir>=/
      Args:
      -outputFormat="html": Values: html|json|txt|latex
+     -header="This is a header"; default: empty string ""
      Example:  rpmout -outputFormat=html /opt /usr/local
 
 ###Misc###
