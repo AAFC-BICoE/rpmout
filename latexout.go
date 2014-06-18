@@ -10,12 +10,10 @@ type LaTeXOut struct {
 }
 
 func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rpmInfo map[string]*RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error {
-	fmt.Println("\\documentclass[11pt,landscape]{article}")
+	fmt.Println("\\documentclass[11pt]{article}")
 	fmt.Println("")
-	fmt.Println("\\usepackage[landscape,paperwidth=10in,paperheight=8.5in]{geometry}")
 	fmt.Println("\\usepackage{longtable,microtype,savetrees}")
 	fmt.Println("\\usepackage{fancyhdr}")
-	//fmt.Println("\\usepackage[hyphens]{url}")
 	fmt.Println("\\usepackage[yyyymmdd,hhmmss]{datetime}")
 	fmt.Println("\\usepackage{hyperref}")
 	fmt.Println("\\usepackage{seqsplit}")
@@ -36,6 +34,7 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 
 	fmt.Println("\\cfoot{Updated: \\today\\ at \\currenttime}")
 	fmt.Println("\\rfoot{\\thepage}")
+	fmt.Println("\\lfoot{\\tt \\href{https://github.com/AAFC-MBB/rpmout}{rpmout}}")
 	fmt.Println("\\lhead{\\bf", header, "}")
 	fmt.Println("\\rhead{RPMs in directories: [/] }")
 
@@ -45,13 +44,13 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 	//fmt.Println("\\newpage")
 	//fmt.Println("\\begin{landscape}")
 	fmt.Println("\\renewcommand*{\\arraystretch}{1.4}")
-	fmt.Println("\\begin{longtable}{|p{2cm}|p{1.4cm}|p{4cm}|p{5cm}|p{4cm}|p{3cm}|}")
+	fmt.Println("\\begin{longtable}{|p{3.5cm}|p{4cm}|p{9.67cm}|}")
 	fmt.Println("\\hline")
-	fmt.Println("\\textbf{Name}& \\textbf{Version}& \\textbf{Summary}& \\textbf{Description}& \\textbf{URL}& \\textbf{License}\\\\")
+	fmt.Println("\\textbf{Name}& \\textbf{Summary}& \\textbf{Description}\\\\")
 	fmt.Println("\\hline")
 	fmt.Println("\\endfirsthead")
 	fmt.Println("\\hline")
-	fmt.Println("\\textbf{Name}& \\textbf{Version}& \\textbf{Summary}& \\textbf{Description}& \\textbf{URL}& \\textbf{License}\\\\")
+	fmt.Println("\\textbf{Name}& \\textbf{Summary}& \\textbf{Description}\\\\")
 	fmt.Println("\\hline")
 	fmt.Println("\\endhead")
 
@@ -66,14 +65,30 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 		//fmt.Println("\\item {\\bf" + escapeLatex("  " + k + ": ") + "}" + escapeLatex(v))
 		//fmt.Println("\\newline")
 		//	fmt.Println("\\hline")
-		name := escapeLatex(insertSpaces(rpmInfo[s[r]].Tags["name"]))
+		//name := escapeLatex(insertSpaces(rpmInfo[s[r]].Tags["name"]))
+		name := escapeLatex(rpmInfo[s[r]].Tags["name"])
 
-		fmt.Println(name + "&")
-		fmt.Println("\\foo{1.4cm}{" + escapeLatex(rpmInfo[s[r]].Tags["version"]) + "}&")
+		fmt.Println("{\\bf ", name, "}")
+		fmt.Println("")
+		fmt.Println("\\vspace{3mm}")
+		fmt.Println("Version: ")
+		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["version"]))
+		fmt.Println("&")
+
 		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["summary"]) + "&")
-		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["description"]) + "&")
-		fmt.Println("\\small \\url{" + escapeLatex(rpmInfo[s[r]].Tags["url"]) + "}&")
-		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["license"]))
+		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["description"]))
+		fmt.Println("")
+		fmt.Println("\\vspace{3mm}")
+		url := rpmInfo[s[r]].Tags["url"]
+		fmt.Println("\\noindent URL: ")
+		if len(url) > 0 {
+			fmt.Println("{\\bf \\url{" + escapeLatex(url) + "}}")
+		} else {
+			fmt.Println("NA")
+		}
+		fmt.Println("")
+		fmt.Println("\\vspace{3mm}")
+		fmt.Println("\\noindent License: {\\bf " + escapeLatex(rpmInfo[s[r]].Tags["license"]) + "}")
 		fmt.Println("\\\\ \\hline")
 	}
 	//fmt.Println("\\end{itemize}")
