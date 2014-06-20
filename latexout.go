@@ -107,7 +107,9 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 	}
 	//fmt.Println("\\end{itemize}")
 	//fmt.Println("\\end{section}")
+
 	fmt.Println("\\end{longtable}")
+	fmt.Println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 	fmt.Println("\\noindent Total \\# packages: " + strconv.Itoa(count))
 	fmt.Println("\\vfill")
 	fmt.Println("\\noindent Made with: \\tt \\href{https://github.com/AAFC-MBB/rpmout}{rpmout}")
