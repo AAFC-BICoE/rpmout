@@ -54,7 +54,7 @@ var header string
 
 func init() {
 	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex")
-	flag.StringVar(&header, "header", "bar", "gggg")
+	flag.StringVar(&header, "header", "Installed Software", "gggg")
 }
 
 type RpmInfo struct {
