@@ -17,7 +17,7 @@ type HtmlOut2 struct {
 
 var alpha = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 
-func (ho HtmlOut2) output(header string, dirsOfInterest []string, s []string, rpmInfo map[string]*RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (ho HtmlOut2) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	rpmFileCreated := make(map[string]bool)
 	err := makeL0(nodes, rpmFileCreated)
 	return err
@@ -78,7 +78,7 @@ func makeL1(node *Node, rpmFileCreated map[string]bool) (int, error) {
 	return 5, nil
 }
 
-func makeL2(filename string, pkgs map[string]*RpmInfo, rpmFileCreated map[string]bool, numPackages int) error {
+func makeL2(filename string, pkgs map[string]*PackageInfo, rpmFileCreated map[string]bool, numPackages int) error {
 	filename = makeFileName(filename, 2)
 
 	file, err := newFile(filename)
@@ -101,20 +101,20 @@ func makeL2(filename string, pkgs map[string]*RpmInfo, rpmFileCreated map[string
 	}
 
 	for p := range sortedPackages {
-		rpmInfo := pkgs[sortedPackages[p]]
-		if alphaFirst[rpmInfo.Name] {
-			_, _ = io.WriteString(file, "\n<br>"+"<a name=\""+alphaName[rpmInfo.Name]+"\">"+strings.ToUpper(alphaName[rpmInfo.Name]))
+		packageInfo := pkgs[sortedPackages[p]]
+		if alphaFirst[packageInfo.Name] {
+			_, _ = io.WriteString(file, "\n<br>"+"<a name=\""+alphaName[packageInfo.Name]+"\">"+strings.ToUpper(alphaName[packageInfo.Name]))
 		}
-		//_,_ = io.WriteString(file, "\n<li><a href=\"" + makeFileName(rpmInfo.Name,3) + "\">" + rpmInfo.Name + "</a></li>")
-		_, _ = io.WriteString(file, "\n<li><a href=\""+makeFileName(rpmInfo.Name, 3)+"\">"+rpmInfo.Tags["name"]+"</a></li>")
-		makeL3(rpmInfo, rpmFileCreated)
+		//_,_ = io.WriteString(file, "\n<li><a href=\"" + makeFileName(packageInfo.Name,3) + "\">" + packageInfo.Name + "</a></li>")
+		_, _ = io.WriteString(file, "\n<li><a href=\""+makeFileName(packageInfo.Name, 3)+"\">"+packageInfo.Tags["name"]+"</a></li>")
+		makeL3(packageInfo, rpmFileCreated)
 	}
 	/*
 		for pkgs != nil {
-			rpmInfo := pkgs.Value.(*RpmInfo)
-			//fmt.Println("\t\t", rpmInfo.Name)
-			n, err := io.WriteString(file, "\n<li><a href=\"" + makeFileName(rpmInfo.Name,3) + "\">" + rpmInfo.Name + "</a></li>")
-			makeL3(rpmInfo, rpmFileCreated)
+			packageInfo := pkgs.Value.(*PackageInfo)
+			//fmt.Println("\t\t", packageInfo.Name)
+			n, err := io.WriteString(file, "\n<li><a href=\"" + makeFileName(packageInfo.Name,3) + "\">" + packageInfo.Name + "</a></li>")
+			makeL3(packageInfo, rpmFileCreated)
 			if err != nil {
 				fmt.Println(n, err)
 				return err
@@ -128,8 +128,8 @@ func makeL2(filename string, pkgs map[string]*RpmInfo, rpmFileCreated map[string
 	return nil
 }
 
-func makeL3(rpmInfo *RpmInfo, rpmFileCreated map[string]bool) error {
-	filename := makeFileName(rpmInfo.Name, 3)
+func makeL3(packageInfo *PackageInfo, rpmFileCreated map[string]bool) error {
+	filename := makeFileName(packageInfo.Name, 3)
 	if _, ok := rpmFileCreated[filename]; ok {
 		return nil
 	}
@@ -137,8 +137,8 @@ func makeL3(rpmInfo *RpmInfo, rpmFileCreated map[string]bool) error {
 	if err != nil {
 		return err
 	}
-	_, err = io.WriteString(file, "\n"+rpmInfo.Name)
-	_, err = io.WriteString(file, "\n<br>"+rpmInfo.Tags["group"])
+	_, err = io.WriteString(file, "\n"+packageInfo.Name)
+	_, err = io.WriteString(file, "\n<br>"+packageInfo.Tags["group"])
 	file.Close()
 	return nil
 }
@@ -157,7 +157,7 @@ func makeFileName(base string, i int) string {
 	return "h" + strconv.Itoa(i) + "_" + base + ".html"
 }
 
-func alphaList(pkgList []string, pkgs map[string]*RpmInfo) (map[string]bool, map[string]bool, map[string]string) {
+func alphaList(pkgList []string, pkgs map[string]*PackageInfo) (map[string]bool, map[string]bool, map[string]string) {
 	alphaUsed := make(map[string]bool)
 	alphaFirst := make(map[string]bool)
 	alphaName := make(map[string]string)

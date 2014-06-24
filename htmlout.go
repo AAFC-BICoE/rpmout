@@ -11,7 +11,7 @@ import (
 type HtmlOut struct {
 }
 
-func (ho HtmlOut) output(header string, dirsOfInterest []string, s []string, rpmInfo map[string]*RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (ho HtmlOut) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	//t, _ := template.New("foo").Parse(`{{define "T"}}Hello, {{.}} how are you!{{end}}`)
 
 	groupSetList := make([]string, len(groupSet))
@@ -27,9 +27,9 @@ func (ho HtmlOut) output(header string, dirsOfInterest []string, s []string, rpm
 
 	fmt.Println("<ol>")
 	for r := range s {
-		//fmt.Println("html " + rpmInfo[s[r]].name)
-		//_ = t.ExecuteTemplate(os.Stdout, "T", rpmInfo[s[r]].name)
-		rpm := rpmInfo[s[r]]
+		//fmt.Println("html " + packageInfo[s[r]].name)
+		//_ = t.ExecuteTemplate(os.Stdout, "T", packageInfo[s[r]].name)
+		rpm := packageInfo[s[r]]
 		fmt.Println("<li>")
 		fmt.Println("<b>" + html.EscapeString(rpm.Tags["name"]) + "</b>")
 		fmt.Println(" - " + html.EscapeString(rpm.Tags["summary"]))

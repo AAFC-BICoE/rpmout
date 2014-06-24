@@ -1,29 +1,26 @@
-
 package main
 
-import(
+import (
 	"strings"
-//"container/list"
-//"fmt"
+	//"container/list"
+	//"fmt"
 )
 
-
-type Leaf struct{
+type Leaf struct {
 	Name string
 	//Packages *list.List
-	Packages map[string]*RpmInfo
+	Packages map[string]*PackageInfo
 }
 
-type Node struct{
-	Name string
+type Node struct {
+	Name     string
 	Children map[string]*Leaf
 }
 
-
-func extractHierarchy(r *RpmInfo, nodes map[string]*Node){
-	if group,ok := r.Tags["group"]; ok {
+func extractHierarchy(r *PackageInfo, nodes map[string]*Node) {
+	if group, ok := r.Tags["group"]; ok {
 		group := strings.TrimSpace(group)
-		if len(group) > 0{
+		if len(group) > 0 {
 			parts := strings.Split(group, "/")
 			node := getNode(nodes, parts[0])
 			//fmt.Println("++++++++++++++++++++++++++ ", group, " ", node)
@@ -35,12 +32,12 @@ func extractHierarchy(r *RpmInfo, nodes map[string]*Node){
 				}
 				var leaf *Leaf
 
-				if leaf,ok = node.Children[parts[1]]; ok {
+				if leaf, ok = node.Children[parts[1]]; ok {
 					//
-				}else{
+				} else {
 					leaf = new(Leaf)
 					leaf.Name = parts[1]
-					leaf.Packages = make(map[string]*RpmInfo)
+					leaf.Packages = make(map[string]*PackageInfo)
 					node.Children[parts[1]] = leaf
 				}
 				leaf.Packages[strings.ToLower(r.Name)] = r
@@ -49,17 +46,15 @@ func extractHierarchy(r *RpmInfo, nodes map[string]*Node){
 	}
 }
 
-func getNode(nodes map[string]*Node, part string) *Node{
+func getNode(nodes map[string]*Node, part string) *Node {
 	var node *Node
 	var ok bool
-	if node, ok = nodes[part]; ok{
-		
-	}else{
+	if node, ok = nodes[part]; ok {
+
+	} else {
 		node = new(Node)
 		nodes[part] = node
 	}
 	node.Name = part
 	return node
 }
-
-

@@ -8,9 +8,9 @@ import (
 type JsonOut struct {
 }
 
-func (jo JsonOut) output(header string, dirsOfInterest []string, s []string, rpmInfo map[string]*RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (jo JsonOut) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 
-	b, _ := json.Marshal(rpmInfo)
+	b, _ := json.Marshal(packageInfo)
 	fmt.Println(string(b))
 
 	return nil

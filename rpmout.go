@@ -16,6 +16,27 @@ import (
 	"time"
 )
 
+func init() {
+	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex")
+	flag.StringVar(&header, "header", "Installed Software", "gggg")
+	flag.BoolVar(&doR, "R", false, "Find R packages")
+}
+
+var outputFormat string
+var header string
+var doR = false
+
+type PackageInfo struct {
+	Name      string
+	IndexName string
+	IsR       bool
+	Tags      map[string]string
+}
+
+type RpmWriter interface {
+	output(string, []string, []string, map[string]*PackageInfo, map[string]bool, map[string]*Node) error
+}
+
 func handleParameters() bool {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s: Output rpm info for rpms that have install components in certain directories\n", os.Args[0])
@@ -49,23 +70,6 @@ func handleParameters() bool {
 	return true
 }
 
-var outputFormat string
-var header string
-
-func init() {
-	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex")
-	flag.StringVar(&header, "header", "Installed Software", "gggg")
-}
-
-type RpmInfo struct {
-	Name string
-	Tags map[string]string
-}
-
-type RpmWriter interface {
-	output(string, []string, []string, map[string]*RpmInfo, map[string]bool, map[string]*Node) error
-}
-
 var allRpmsExec = []string{"rpm", "-qa"}
 var numFindOfInterestRpmsWorkers = 6
 var numFindRpmTagsWorkers = 2
@@ -73,8 +77,11 @@ var numFindRpmTagsWorkers = 2
 var rpmWriter RpmWriter
 
 func main() {
+
 	runtime.GOMAXPROCS(8)
+
 	_, err := exec.LookPath(allRpmsExec[0])
+
 	if err != nil {
 		log.Fatal("'", allRpmsExec[0], "' is not in your path: needed to run; it is usually in '/usr/bin/rpm'")
 	}
@@ -103,14 +110,14 @@ func main() {
 
 	tagInfoChannel, tagInfoDoneChannel, err := findRpmTags(ofInterestChannel)
 
-	rpmInfoMap := make(map[string]*RpmInfo, 200)
-	//rpmInfoMap2 := make(map[string] RpmInfo, 200)
+	packageInfoMap := make(map[string]*PackageInfo, 200)
+	//packageInfoMap2 := make(map[string] PackageInfo, 200)
 	groupSet := make(map[string]bool)
 
 	var nodes map[string]*Node
 	nodes = make(map[string]*Node)
 
-	addResultsDoneChannel := addResultsToMap(rpmInfoMap, groupSet, tagInfoChannel, nodes)
+	addResultsDoneChannel := addResultsToMap(packageInfoMap, groupSet, tagInfoChannel, nodes)
 
 	for i := 0; i < numFindOfInterestRpmsWorkers; i++ {
 		_ = <-ofInterestDoneChannel
@@ -124,64 +131,46 @@ func main() {
 
 	_ = <-addResultsDoneChannel
 
-	/*
-		fmt.Println(h.Level0)
-		fmt.Println("============================================")
-		fmt.Println(h.Level1)
-		fmt.Println("===")
+	var rpackageInfoMap map[string]*PackageInfo = nil
+	if doR {
+		rpackageInfoMap = findRPackages()
+	}
 
-		for _, node := range nodes {
-			fmt.Println("============================================")
-			fmt.Println(node.Name)
-			for _,leaf := range node.Children {
-				pkgList := leaf.Packages
-				pkg := pkgList.Front()
-				fmt.Println("\t",leaf.Name, " ", pkgList.Len())
-				for pkg != nil {
-					rpmInfo := pkg.Value.(RpmInfo)
-					fmt.Println("\t\t", rpmInfo.Name)
-					pkg = pkg.Next()
-				}
-			}
-		}
-		fmt.Println("===")
-		//
-	*/
-	rpmWriter.output(header, dirsOfInterest, sortStringKeyMap(rpmInfoMap), rpmInfoMap, groupSet, nodes)
-	//rpmWriter.output(rpmInfoMap, rpmInfoMap, groupSet, nodes)
+	add(packageInfoMap, rpackageInfoMap)
+	rpmWriter.output(header, dirsOfInterest, sortStringKeyMap(packageInfoMap), packageInfoMap, groupSet, nodes)
 }
 
 func xlog(m string) {
 	fmt.Println(m)
 }
 
-func makeRpmList() (chan *RpmInfo, error) {
-	rpmListChannel := make(chan *RpmInfo, 200)
+func makeRpmList() (chan *PackageInfo, error) {
+	rpmListChannel := make(chan *PackageInfo, 200)
 
 	stringListChannel := runExec(allRpmsExec)
 
 	go func() {
 		for stringInfo := range stringListChannel {
 			//fmt.Println("makeRpmList: [",  stringInfo.val, "] ", &stringInfo.val," ", stringInfo.done)
-			rpmInfo := new(RpmInfo)
-			rpmInfo.Name = stringInfo.val
-			rpmInfo.Tags = make(map[string]string)
-			rpmListChannel <- rpmInfo
+			packageInfo := new(PackageInfo)
+			packageInfo.Name = stringInfo.val
+			packageInfo.Tags = make(map[string]string)
+			rpmListChannel <- packageInfo
 		}
 		close(rpmListChannel)
 	}()
 	return rpmListChannel, nil
 }
 
-func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo) (chan *RpmInfo, chan bool, error) {
-	ofInterestChannel := make(chan *RpmInfo, 100)
+func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *PackageInfo) (chan *PackageInfo, chan bool, error) {
+	ofInterestChannel := make(chan *PackageInfo, 100)
 	doneChannel := make(chan bool, numFindOfInterestRpmsWorkers)
 
 	for i := 0; i < numFindOfInterestRpmsWorkers; i++ {
 		go func() {
-			for rpmInfo := range rpmListChannel {
-				//fmt.Println("findOfInterestRpms ", rpmInfo.Name)
-				cmd := exec.Command(allRpmsExec[0], "-ql", rpmInfo.Name)
+			for packageInfo := range rpmListChannel {
+				//fmt.Println("findOfInterestRpms ", packageInfo.Name)
+				cmd := exec.Command(allRpmsExec[0], "-ql", packageInfo.Name)
 				out, err := cmd.Output()
 
 				if err != nil {
@@ -196,9 +185,8 @@ func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo) (
 					}
 					for _, dir := range dirsOfInterest {
 						if strings.Index(line, dir) == 0 {
-							ofInterestChannel <- rpmInfo
+							ofInterestChannel <- packageInfo
 							done = true
-							//fmt.Println("findOfInterestRpms ********* ", rpmInfo.Name)
 						}
 					}
 				}
@@ -209,27 +197,27 @@ func findOfInterestRpms(dirsOfInterest []string, rpmListChannel chan *RpmInfo) (
 	return ofInterestChannel, doneChannel, nil
 }
 
-func findRpmTags(ofInterestChannel chan *RpmInfo) (chan *RpmInfo, chan bool, error) {
-	tagInfoChannel := make(chan *RpmInfo, 200)
+func findRpmTags(ofInterestChannel chan *PackageInfo) (chan *PackageInfo, chan bool, error) {
+	tagInfoChannel := make(chan *PackageInfo, 200)
 	doneChannel := make(chan bool, numFindRpmTagsWorkers)
 
 	for i := 0; i < numFindRpmTagsWorkers; i++ {
 		go func() {
 			numTags := random(100, 400)
-			tagBuffer := make([]*RpmInfo, numTags)
+			tagBuffer := make([]*PackageInfo, numTags)
 			count := 0
-			for rpmInfo := range ofInterestChannel {
-				//fmt.Println("\t findRpmTags ", rpmInfo.name)
-				//fmt.Println("--",count," ", rpmInfo.name)
+			for packageInfo := range ofInterestChannel {
+				//fmt.Println("\t findRpmTags ", packageInfo.name)
+				//fmt.Println("--",count," ", packageInfo.name)
 				if count >= numTags {
 					out := runCommand(tagBuffer, count)
 					parseAndSend(count, tagBuffer, out, tagInfoChannel)
-					//fmt.Println("+++ ", rpmInfo.name, " --- ", out)
+					//fmt.Println("+++ ", packageInfo.name, " --- ", out)
 					count = 0
-					tagInfoChannel <- rpmInfo
+					tagInfoChannel <- packageInfo
 
 				}
-				tagBuffer[count] = rpmInfo
+				tagBuffer[count] = packageInfo
 				count = count + 1
 			}
 			if count > 0 {
@@ -250,7 +238,7 @@ const recordSeparator = "|||"
 
 var rpmFormat = "name:%{NAME}" + tagSeparator + "os:%{OS}" + tagSeparator + "version:%{VERSION}" + tagSeparator + "release:%{RELEASE}" + tagSeparator + "arch:%{ARCH}" + tagSeparator + "installtime:%{INSTALLTIME:date}" + tagSeparator + "group:%{GROUP}" + tagSeparator + "size:%{SIZE}" + tagSeparator + "license:%{LICENSE}" + tagSeparator + "sourcerpm:%{SOURCERPM}" + tagSeparator + "buildtime:%{BUILDTIME}" + tagSeparator + "buildhost:%{BUILDHOST}" + tagSeparator + "packager:%{PACKAGER}" + tagSeparator + "vendor:%{VENDOR}" + tagSeparator + "url:%{URL}" + tagSeparator + "summary:%{SUMMARY}" + tagSeparator + "description:%{DESCRIPTION}" + tagSeparator + "" + tagSeparator + "distribution:%{DISTRIBUTION}" + tagSeparator + "packager:%{PACKAGER}" + tagSeparator + "patch:%{PATCH}" + recordSeparator
 
-func parseAndSend(count int, tagInfoBuffer []*RpmInfo, out string, tagInfoChannel chan *RpmInfo) {
+func parseAndSend(count int, tagInfoBuffer []*PackageInfo, out string, tagInfoChannel chan *PackageInfo) {
 	records := strings.Split(out, recordSeparator)
 	if len(records) != count+1 {
 		log.Fatal("jiijjj ")
@@ -272,7 +260,7 @@ func parseAndSend(count int, tagInfoBuffer []*RpmInfo, out string, tagInfoChanne
 	}
 }
 
-func runCommand(tagBuffer []*RpmInfo, count int) string {
+func runCommand(tagBuffer []*PackageInfo, count int) string {
 	args := []string{}
 	args = append(args, "--qf")
 	args = append(args, rpmFormat)
@@ -288,7 +276,7 @@ func runCommand(tagBuffer []*RpmInfo, count int) string {
 	return string(out)
 }
 
-func makeArgs(cmd *exec.Cmd, tagBuffer []*RpmInfo, count int) {
+func makeArgs(cmd *exec.Cmd, tagBuffer []*PackageInfo, count int) {
 	cmd.Args = make([]string, 3+count)
 	cmd.Args[0] = "--qf"
 	cmd.Args[1] = rpmFormat
@@ -298,14 +286,14 @@ func makeArgs(cmd *exec.Cmd, tagBuffer []*RpmInfo, count int) {
 	}
 }
 
-func addResultsToMap(rpmMap map[string]*RpmInfo, groupSet map[string]bool, tagInfoChannel chan *RpmInfo, nodes map[string]*Node) chan bool {
+func addResultsToMap(rpmMap map[string]*PackageInfo, groupSet map[string]bool, tagInfoChannel chan *PackageInfo, nodes map[string]*Node) chan bool {
 	doneChannel := make(chan bool)
 	go func() {
-		for rpmInfo := range tagInfoChannel {
-			rpmMap[strings.ToLower(rpmInfo.Name)] = rpmInfo
-			groupSet[rpmInfo.Tags["group"]] = true
-			//fmt.Println("Adding to map ", rpmInfo.Name)
-			extractHierarchy(rpmInfo, nodes)
+		for packageInfo := range tagInfoChannel {
+			rpmMap[strings.ToLower(packageInfo.Name)] = packageInfo
+			groupSet[packageInfo.Tags["group"]] = true
+			//fmt.Println("Adding to map ", packageInfo.Name)
+			extractHierarchy(packageInfo, nodes)
 		}
 		doneChannel <- true
 	}()
@@ -322,7 +310,7 @@ func sortStringKeyMap2(m map[string]*struct{}) []string {
 }
 
 //func sortStringKeyMap(m map[string]struct{}) []string{
-func sortStringKeyMap(m map[string]*RpmInfo) []string {
+func sortStringKeyMap(m map[string]*PackageInfo) []string {
 	sm := make([]string, len(m))
 	i := 0
 	for k, _ := range m {
@@ -342,4 +330,11 @@ func sortStringKeyNodeMap(m map[string]*Node) []string {
 	}
 	sort.Strings(sm)
 	return sm
+}
+
+// Add the R packages to the RPM packages
+func add(rpms map[string]*PackageInfo, rpacks map[string]*PackageInfo) {
+	for k, v := range rpacks {
+		rpms[k] = v
+	}
 }

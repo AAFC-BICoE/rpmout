@@ -10,7 +10,7 @@ import (
 type LaTeXOut struct {
 }
 
-func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rpmInfo map[string]*RpmInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	fmt.Println("\\documentclass[11pt]{article}")
 	fmt.Println("")
 	fmt.Println("\\usepackage{longtable,microtype,savetrees}")
@@ -66,23 +66,46 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 	fmt.Println("\\endhead")
 
 	count := 0
+	rCount := 0
 
 	for r := range s {
 		count += 1
-		name := escapeLatex(rpmInfo[s[r]].Tags["name"])
+		tpackage := packageInfo[s[r]]
+		if tpackage.IsR {
+			rCount += 1
+		}
+		name := escapeLatex(tpackage.Tags["name"])
+		var indexName string
+		if tpackage.IndexName == "" {
+			indexName = name
+		} else {
+			indexName = tpackage.IndexName
+		}
 
-		fmt.Println("{\\bf \\color{blue}" + name + " \\index{" + name + "}}")
+		fmt.Println("{\\bf \\color{blue}" + name + " \\index{" + indexName + "}")
+		if tpackage.IsR {
+			fmt.Println("\\index{" + name + "\\ {\\em (R-package)}}")
+		}
+
+		fmt.Println("}")
+
 		fmt.Println("")
 		fmt.Println("\\vspace{3mm}")
-
 		fmt.Println("Version: ")
-		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["version"]))
+		fmt.Println(escapeLatex(tpackage.Tags["version"]))
+
+		if tpackage.IsR {
+			fmt.Println("")
+			fmt.Println("\\vspace{3mm}")
+			fmt.Println("{ \\bf\\color{Sepia} R package}")
+		}
+
 		fmt.Println("&")
 
-		fmt.Println(escapeLatex(rpmInfo[s[r]].Tags["summary"]))
+		fmt.Println(escapeLatex(tpackage.Tags["summary"]))
 		fmt.Println("&")
 
-		description := escapeLatex(rpmInfo[s[r]].Tags["description"])
+		description := escapeLatex(tpackage.Tags["description"])
 		if len(description) > 3000 {
 			description = description[:3000] + "\\ldots"
 		}
@@ -92,7 +115,7 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 		fmt.Println("")
 
 		fmt.Println("\\vspace{3mm}")
-		url := rpmInfo[s[r]].Tags["url"]
+		url := tpackage.Tags["url"]
 		fmt.Println("\\noindent URL:")
 		if len(url) > 0 {
 			fmt.Print("{\\bf\\url{" + url + "}}")
@@ -102,7 +125,7 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Println("\\vspace{3mm}")
-		fmt.Println("\\noindent License: {\\bf\\color{Sepia} " + escapeLatex(rpmInfo[s[r]].Tags["license"]) + "}")
+		fmt.Println("\\noindent License: {\\bf\\color{Sepia} " + escapeLatex(tpackage.Tags["license"]) + "}")
 		fmt.Println("\\\\ \\hline")
 	}
 	//fmt.Println("\\end{itemize}")
@@ -111,6 +134,8 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, rp
 	fmt.Println("\\end{longtable}")
 	fmt.Println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 	fmt.Println("\\noindent Total \\# packages: " + strconv.Itoa(count))
+	fmt.Println("\\newline")
+	fmt.Println("\\noindent Total R \\# packages: " + strconv.Itoa(rCount))
 	fmt.Println("\\vfill")
 	fmt.Println("\\noindent Made with: \\tt \\href{https://github.com/AAFC-MBB/rpmout}{rpmout}")
 	//fmt.Println("\\end{landscape}")
@@ -165,6 +190,9 @@ func escapeLatex(v string) string {
 	v = strings.Replace(v, "\\", "\\textbackslash{}", -1)
 	v = strings.Replace(v, "_", "\\_", -1)
 	v = strings.Replace(v, "$", "\\$", -1)
+
+	v = strings.Replace(v, ">", "{\\textgreater}", -1)
+	v = strings.Replace(v, "<", "{\\textless}", -1)
 
 	v = strings.Replace(v, "#", "\\#", -1)
 	v = strings.Replace(v, "%", "\\%", -1)
