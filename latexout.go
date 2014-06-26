@@ -135,7 +135,7 @@ func (lo LaTeXOut) output(header string, dirsOfInterest []string, s []string, pa
 	fmt.Println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 	fmt.Println("\\noindent Total \\# packages: " + strconv.Itoa(count))
 	fmt.Println("\\newline")
-	fmt.Println("\\noindent Total R \\# packages: " + strconv.Itoa(rCount))
+	fmt.Println("\\noindent Total  \\# {\\bf R} packages: " + strconv.Itoa(rCount))
 	fmt.Println("\\vfill")
 	fmt.Println("\\noindent Made with: \\tt \\href{https://github.com/AAFC-MBB/rpmout}{rpmout}")
 	//fmt.Println("\\end{landscape}")

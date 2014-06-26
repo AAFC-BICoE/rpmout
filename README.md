@@ -1,10 +1,13 @@
 rpmout
 ======
 
-rpmout is a utility for creating user facing rpm information written in Go.
+rpmout is a utility for extracting RPM packages and R packages that are installed on a Linux system.
+It is written in Go.
 
-It extracts the rpm tag info (using the rpm command) and produces an HTML list fragment (default), JSON, simple text, and LaTeX.
-It can be restricted to the rpms that are implicated in a particular set of directories.
+It extracts the RPM tag info (using the rpm command) and optionally, R packages, and produces an HTML list fragment (default), JSON, simple text, and LaTeX.
+It can be restricted to the RPMS that are implicated in a particular set of directories.
+
+The LaTeX version also creates a clickable index of all packages.
 
 My use is to produce a list of bioinformatics applications installed as RPMS on a Rocks cluster http://en.wikipedia.org/wiki/Rocks_Cluster_Distribution
 
@@ -15,14 +18,31 @@ This fragment is meant to be embedded into a static HTML page that wraps it with
      rpmout <args> <rootDir0>...<rootDirN>
      default <rootDir>=/
      Args:
+     -R=false: Find R packages (only works with LaTeX right now)
      -outputFormat="html": Values: html|json|txt|latex
-     -header="This is a header"; default: empty string ""
+     -header="This is a header"; default: "Installed Software"
      Example:  rpmout -outputFormat=html /opt /usr/local
 
-###Misc###
-Note that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your PATH
+###LaTeX###
 
-rpmout is a 64bit compiled on Fedora 18 binary, go version devel +d58997478ec6 Mon Apr 08 00:09:35 2013 -0700 linux/amd64
+The LaTeX output right now is the only one that includes R packages.
+
+To generate a PDF from the LaTeX output:
+Right now, the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout.R all need to be in the same directory (to be fixed):
+    # generate LaTeX for all RPMs and all R packages system:
+    $ ./rpmout -R -outputFormat=latex > sample.tex
+    # generate PDF (takes a minute or so...)
+    $ ./rpmoutlatex2pdf.sh sample.tex
+    # display PDF file
+    $ acroread all.pdf
+
+###Dependencies###
+* The 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your PATH
+* If you want 'R' packages, the 'R' command needs to be in your PATH
+* 'rpmoutlatex2pdf.sh' needs a reasonable modern instance of 'tex/LaTeX' installed
+** The LaTeX packages: longtable,microtype,savetrees, fancyhdr, datetime, hyperref, seqsplit, color, makeidx
+
+rpmout is a 64bit compiled on Fedora 18 binary, go version go1.3 linux/amd64
 
 ###Sample output###
 
@@ -30,7 +50,7 @@ rpmout is a 64bit compiled on Fedora 18 binary, go version devel +d58997478ec6 M
 [sample.html.gz](https://github.com/gnewton/rpmout/blob/master/sample.html.gz) is an example, from running 'rpmout /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big page (~1.4MB ungziped).
 
 ####LaTeX####
-[sample.tex.gz](https://github.com/gnewton/rpmout/blob/master/sample.tex.gz) is an example, from running 'rpmout -outputFormat=latex /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big document. The PDF is sample.pdf.gz, has 700 pages and is  ~1.3MB
+[sample.tex.gz](https://github.com/gnewton/rpmout/blob/master/sample.tex.gz) is an example, from running 'rpmout -R -outputFormat=latex /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big document. The PDF is sample.pdf.gz, has 545 pages and is  ~1.8MB
 
 ###Idea###
 The original single threaded Ruby version I prototyped takes about 4 1/2 minutes to run. This naively written Go implementation takes <22 seconds to do the same thing.

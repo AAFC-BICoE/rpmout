@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript
 
 options(repos="http://probability.ca/cran/")
 if("RJSONIO" %in% rownames(installed.packages()) == FALSE) {install.packages("RJSONIO")}
