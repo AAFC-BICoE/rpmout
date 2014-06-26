@@ -1,7 +1,7 @@
 rpmout
 ======
 
-rpmout is a utility for extracting RPM packages and R packages that are installed on a Linux system.
+rpmout is a utility for extracting RPM packages and (optionally) R packages that are installed on a Linux system.
 It is written in Go.
 
 It extracts the RPM tag info (using the rpm command) and optionally, R packages, and produces an HTML list fragment (default), JSON, simple text, and LaTeX.
@@ -25,7 +25,7 @@ This fragment is meant to be embedded into a static HTML page that wraps it with
 
 ###LaTeX###
 
-The LaTeX output right now is the only one that includes R packages.
+**NB**: The LaTeX output right now is the only one that includes R packages.
 
 To generate a PDF from the LaTeX output:
 Right now, the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout.R all need to be in the same directory (to be fixed):
@@ -40,7 +40,7 @@ Right now, the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout.R a
 * The 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your PATH
 * If you want 'R' packages, the 'R' command needs to be in your PATH
 * 'rpmoutlatex2pdf.sh' needs a reasonable modern instance of 'tex/LaTeX' installed
-** The LaTeX packages: longtable,microtype,savetrees, fancyhdr, datetime, hyperref, seqsplit, color, makeidx
+  * The LaTeX packages: longtable,microtype,savetrees, fancyhdr, datetime, hyperref, seqsplit, color, makeidx
 
 rpmout is a 64bit compiled on Fedora 18 binary, go version go1.3 linux/amd64
 
