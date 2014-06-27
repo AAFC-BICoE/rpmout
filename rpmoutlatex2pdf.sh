@@ -10,8 +10,14 @@ echo "hello" $base
 echo "headings_flag 1" > ${base}.ist
 echo "heading_prefix \"\\\\textbf\{\\\\color\\{blue\\}\\{\"" >> ${base}.ist
 echo "heading_suffix \"\\}\\}\"" >> ${base}.ist
-
-makeindex -s ${base}.ist ${base}.idx
+splitindex.pl ${base}
+makeindex -s ${base}.ist ${base}-s.idx
+makeindex -s ${base}.ist ${base}-g.idx
+makeindex -s ${base}.ist ${base}-l.idx
 pdflatex $texFile
-makeindex -s ${base}.ist ${base}.idx
+splitindex.pl ${base}
+makeindex -s ${base}.ist ${base}-s.idx
+makeindex -s ${base}.ist ${base}-g.idx
+makeindex -s ${base}.ist ${base}-l.idx
+pdflatex $texFile
 pdflatex $texFile

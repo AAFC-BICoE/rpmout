@@ -321,6 +321,40 @@ func sortStringKeyMap(m map[string]*PackageInfo) []string {
 	return sm
 }
 
+func sortLicenseCountMap(licenseCount map[string]int) []string {
+	sm := make([]string, len(licenseCount))
+	i := 0
+	for k, _ := range licenseCount {
+		sm[i] = k
+		i++
+	}
+	sort.Strings(sm)
+	return sm
+}
+
+type Pair struct {
+	Key   string
+	Value int
+}
+
+// From: https://groups.google.com/forum/#!topic/golang-nuts/FT7cjmcL7gw
+type PairList []Pair
+
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PairList) Len() int           { return len(p) }
+func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+
+// A function to turn a map into a PairList, then sort and return it.
+func sortMapByValue(m map[string]int) PairList {
+	pp := make(PairList, len(m))
+	i := 0
+	for k, v := range m {
+		pp[i] = Pair{k, v}
+	}
+	sort.Sort(pp)
+	return pp
+}
+
 func sortStringKeyNodeMap(m map[string]*Node) []string {
 	sm := make([]string, len(m))
 	i := 0

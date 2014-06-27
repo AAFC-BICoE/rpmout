@@ -7,11 +7,16 @@ It is written in Go.
 It extracts the RPM tag info (using the rpm command) and optionally, R packages, and produces an HTML list fragment (default), JSON, simple text, and LaTeX.
 It can be restricted to the RPMS that are implicated in a particular set of directories.
 
-The LaTeX version also creates a clickable index of all packages.
+The LaTeX version creates three indexes of packages:
+1. Index by software package name
+2. Index by RPM Group, package name
+3. Index by License, package name
+
+The LaTeX version creates table of counts by license, useful for auditing purposes.
 
 My use is to produce a list of bioinformatics applications installed as RPMS on a Rocks cluster http://en.wikipedia.org/wiki/Rocks_Cluster_Distribution
 
-For example: users want to know what is installed in the bioinformatics install dir /opt/bioinformatics, and 'rpmout' generates (by default) an HTML fragment made up of a list of rpms and their useful attributes. 
+For example: users want to know what is installed in the bioinformatics install dir /opt/bioinformatics, and 'rpmout' generates (by default) an HTML fragment made up of a list of rpms and their useful attributes.  
 This fragment is meant to be embedded into a static HTML page that wraps it with the appropriate local style, titles it, etc.
 
 ###Usage###
@@ -28,19 +33,33 @@ This fragment is meant to be embedded into a static HTML page that wraps it with
 **NB**: The LaTeX output right now is the only one that includes R packages.
 
 To generate a PDF from the LaTeX output:
-Right now, the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout.R all need to be in the same directory (to be fixed):
+Right now, for the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout.R all need to be in the same directory (to be fixed):
+```
     # generate LaTeX for all RPMs and all R packages system:
     $ ./rpmout -R -outputFormat=latex > sample.tex
     # generate PDF (takes a minute or so...)
     $ ./rpmoutlatex2pdf.sh sample.tex
     # display PDF file
     $ acroread all.pdf
+```
 
 ###Dependencies###
 * The 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your PATH
 * If you want 'R' packages, the 'R' command needs to be in your PATH
-* 'rpmoutlatex2pdf.sh' needs a reasonable modern instance of 'tex/LaTeX' installed
-  * The LaTeX packages: longtable,microtype,savetrees, fancyhdr, datetime, hyperref, seqsplit, color, makeidx
+* `rpmoutlatex2pdf.sh` needs a reasonable modern instance of 'tex/LaTeX' installed
+  * The LaTeX packages: 
+color,
+datetime,
+fancyhdr,
+hyperref,
+longtable,
+makeidx,
+microtype,
+savetrees,
+seqsplit,
+splitidx.
+
+*NB*: The splitindex's  `splitnindex.pl` needs to be in the `PATH`.
 
 rpmout is a 64bit compiled on Fedora 18 binary, go version go1.3 linux/amd64
 
