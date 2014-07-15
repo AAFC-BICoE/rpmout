@@ -7,15 +7,16 @@ import (
 	"log"
 )
 
-type StringInfo struct {
+type Line struct {
 	val string
 }
 
-func runExec(commandAndArgs []string) chan *StringInfo {
+// run program and write each line from stdout into a channel
+func runExec(commandAndArgs []string) chan *Line {
 	command := commandAndArgs[0]
 	args := commandAndArgs[1:]
 
-	lines := make(chan *StringInfo, 1024)
+	lines := make(chan *Line, 1024)
 
 	cmd := exec.Command(command, args[0:]...)
 	stdout, err := cmd.StdoutPipe()
@@ -28,11 +29,11 @@ func runExec(commandAndArgs []string) chan *StringInfo {
 	}
 
 	go func() {
-		var si *StringInfo
+		var si *Line
 		r := bufio.NewReader(stdout)
 		s, e := Readln(r)
 		for e == nil {
-			si = new(StringInfo)
+			si = new(Line)
 			si.val = s
 			lines <- si
 			s, e = Readln(r)
