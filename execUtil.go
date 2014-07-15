@@ -8,8 +8,7 @@ import (
 )
 
 type StringInfo struct {
-	val  string
-	done bool
+	val string
 }
 
 func runExec(commandAndArgs []string) chan *StringInfo {
@@ -35,7 +34,6 @@ func runExec(commandAndArgs []string) chan *StringInfo {
 		for e == nil {
 			si = new(StringInfo)
 			si.val = s
-			si.done = false
 			lines <- si
 			s, e = Readln(r)
 		}
