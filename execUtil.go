@@ -30,13 +30,16 @@ func runExec(commandAndArgs []string) chan *Line {
 
 	go func() {
 		var si *Line
-		r := bufio.NewReader(stdout)
-		s, e := Readln(r)
-		for e == nil {
+
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			line := scanner.Text()
 			si = new(Line)
-			si.val = s
+			si.val = line
 			lines <- si
-			s, e = Readln(r)
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
 		}
 		close(lines)
 		stdout.Close()
