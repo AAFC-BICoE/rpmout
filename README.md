@@ -86,9 +86,9 @@ The reason for creating `rpmout` is to generate a list of packages for the [Rock
 * show location of any executables?
 * show location of any libraries? 
 
-Copyright
-========
-* Copyright (c) 2014 Government of Canada
-* Developed at Agriculture and Agri-Food Canada
-* Developed by Glen Newton
-* MIT License (Open Source)
+Copyright, License, Attribution& Acknowledgements
+=====
+* Copyright 2014 Government of Canada
+* MIT License (See LICENSE file)
+* Author: Glen Newton glen.newton@agr.gc.ca glen.newton@gmail.com
+* Developed at: Microbial Biodiversity Bioinformatics Group @ Agriculture and Agri-Food Canada
