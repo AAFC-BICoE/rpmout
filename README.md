@@ -90,3 +90,4 @@ Copyright
 ========
 Copyright (c) 2014 Government of Canada
 Developed at Agriculture and Agri-Food Canada
+MIT License (Open Source)
