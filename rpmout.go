@@ -71,6 +71,7 @@ func handleParameters() bool {
 }
 
 var allRpmsExec = []string{"rpm", "-qa"}
+
 var numFindOfInterestRpmsWorkers = 6
 var numFindRpmTagsWorkers = 2
 

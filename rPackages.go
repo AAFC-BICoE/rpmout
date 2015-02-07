@@ -41,7 +41,8 @@ func findRPackages() map[string]*PackageInfo {
 	cmd := exec.Command("rpmout.R")
 	jsonBytes, err := cmd.Output()
 	if err != nil {
-		log.Fatal("jjjj ", err)
+		log.Println("rpmout.R failed: ")
+		log.Fatal(err)
 	}
 
 	var rpackages []RPackage

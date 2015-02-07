@@ -14,6 +14,9 @@ type HtmlOut struct {
 func (ho HtmlOut) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	//t, _ := template.New("foo").Parse(`{{define "T"}}Hello, {{.}} how are you!{{end}}`)
 
+	index := new(Index)
+	index.Init()
+
 	groupSetList := make([]string, len(groupSet))
 	i := 0
 	for g, _ := range groupSet {
@@ -50,7 +53,11 @@ func (ho HtmlOut) output(header string, dirsOfInterest []string, s []string, pac
 			fmt.Println("<br><b>Packager:</b> " + html.EscapeString(rpm.Tags["packager"]))
 		}
 		fmt.Println("<br><b>License:</b> " + html.EscapeString(rpm.Tags["license"]))
-		fmt.Println("<br><b>Group:</b> " + html.EscapeString(rpm.Tags["group"]))
+		if rpm.IsR {
+			fmt.Println("<br><b>R package</b> ")
+		} else {
+			fmt.Println("<br><b>Group:</b> " + html.EscapeString(rpm.Tags["group"]))
+		}
 
 		fmt.Println("<br><br>")
 		fmt.Println("</li>")
