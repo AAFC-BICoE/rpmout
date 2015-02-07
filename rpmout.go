@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex")
+	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex|exhibit")
 	flag.StringVar(&header, "header", "Installed Software", "gggg")
 	flag.BoolVar(&doR, "R", false, "Find R packages")
 }
