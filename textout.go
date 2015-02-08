@@ -8,7 +8,7 @@ import (
 type TextOut struct {
 }
 
-func (to TextOut) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (to TextOut) output(outputLocation string, header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 
 	for r := range s {
 		fmt.Println("")

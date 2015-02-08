@@ -17,7 +17,7 @@ type HtmlOut2 struct {
 
 var alpha = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 
-func (ho HtmlOut2) output(header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (ho HtmlOut2) output(outputLocation string, header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	rpmFileCreated := make(map[string]bool)
 	err := makeL0(nodes, rpmFileCreated)
 	return err

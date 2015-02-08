@@ -20,8 +20,10 @@ func init() {
 	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex|exhibit")
 	flag.StringVar(&header, "header", "Installed Software", "gggg")
 	flag.BoolVar(&doR, "R", false, "Find R packages")
+	flag.StringVar(&outputLocation, "o", "rpmoutOut", "Base path and name for output file(s)")
 }
 
+var outputLocation string = ""
 var outputFormat string
 var header string
 var doR = false
@@ -34,7 +36,7 @@ type PackageInfo struct {
 }
 
 type RpmWriter interface {
-	output(string, []string, []string, map[string]*PackageInfo, map[string]bool, map[string]*Node) error
+	output(string, string, []string, []string, map[string]*PackageInfo, map[string]bool, map[string]*Node) error
 }
 
 func handleParameters() bool {
@@ -138,7 +140,7 @@ func main() {
 	}
 
 	add(packageInfoMap, rpackageInfoMap)
-	rpmWriter.output(header, dirsOfInterest, sortStringKeyMap(packageInfoMap), packageInfoMap, groupSet, nodes)
+	rpmWriter.output(outputLocation, header, dirsOfInterest, sortStringKeyMap(packageInfoMap), packageInfoMap, groupSet, nodes)
 }
 
 func xlog(m string) {
