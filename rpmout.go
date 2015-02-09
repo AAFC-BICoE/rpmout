@@ -65,6 +65,10 @@ func handleParameters() bool {
 
 	case "latex":
 		rpmWriter = new(LaTeXOut)
+
+	case "exhibit":
+		rpmWriter = new(ExhibitOut)
+
 	default:
 		log.Print("Unknown/unsupported output format: " + outputFormat)
 		return false
