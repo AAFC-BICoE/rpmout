@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
 )
 
 //type RpmWriter interface {
@@ -40,7 +40,15 @@ func (lo ExhibitOut) output(outputLocation string, header string, dirsOfInterest
 	einfo.Items = info
 	//fmt.Printf("%+v\n", info)
 	b, _ := json.Marshal(einfo)
-	fmt.Println(string(b))
+	//fmt.Println(string(b))
+	err := ioutil.WriteFile("allSoftware.js", b, 0644)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile("rpmout.html", []byte(exhibitTemplate), 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -59,30 +67,4 @@ type EInfo struct {
 }
 
 // see http://logd.tw.rpi.edu/tutorial/using_mit_simile_exhibit
-
-const htmlTemplate = `
- <html>
- <head>
-    <title>Cluster Software</title>
-  
-    <script src=\"http://trunk.simile-widgets.org/exhibit/api/exhibit-api.js\"></script>
-    <link href=\"{{.jsonDataFileName}}.js\"  rel=\"exhibit/data\" />
- </head> 
-
- <body>
-   <h1>Cluster Software</h1>
-       <table width=\"100%\">
-        <tr valign=\"top\">
-            <td ex:role=\"viewPanel\">
-	      <div ex:role=\"view\" ex:label=\"List\"></div>
-	                  </td>
-            <td width=\"25%\">
-	      <div ex:role=\"facet\" ex:facetClass=\"TextSearch\"></div>
-	      <div ex:role=\"facet\" ex:expression=\".type\" ex:facetLabel=\"Type\"></div>
-	      <div ex:role=\"facet\" ex:expression=\".license\" ex:facetLabel=\"License\"></div>
-	      <div ex:role=\"facet\" ex:expression=\".group\" ex:facetLabel=\"Group\"></div>
-            </td>
-        </tr>
-    </table>
- </body>
-`
+// http://simile-widgets.org/wiki/Exhibit/Hierarchical_Facet
