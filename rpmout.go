@@ -36,7 +36,7 @@ type PackageInfo struct {
 }
 
 type RpmWriter interface {
-	output(string, string, []string, []string, map[string]*PackageInfo, map[string]bool, map[string]*Node) error
+	output(string, string, string, []string, []string, map[string]*PackageInfo, map[string]bool, map[string]*Node) error
 }
 
 func handleParameters() bool {
@@ -144,7 +144,7 @@ func main() {
 	}
 
 	add(packageInfoMap, rpackageInfoMap)
-	rpmWriter.output(outputLocation, header, dirsOfInterest, sortStringKeyMap(packageInfoMap), packageInfoMap, groupSet, nodes)
+	rpmWriter.output(outputLocation, "", header, dirsOfInterest, sortStringKeyMap(packageInfoMap), packageInfoMap, groupSet, nodes)
 }
 
 func xlog(m string) {

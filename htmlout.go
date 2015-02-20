@@ -11,7 +11,7 @@ import (
 type HtmlOut struct {
 }
 
-func (ho HtmlOut) output(outputLocation string, header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (ho HtmlOut) output(outputLocation string, outputBaseFileName string, header string, dirsOfInterest []string, s []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	//t, _ := template.New("foo").Parse(`{{define "T"}}Hello, {{.}} how are you!{{end}}`)
 
 	//index := new(Index)

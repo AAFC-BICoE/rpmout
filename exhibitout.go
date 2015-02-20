@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 )
 
 //type RpmWriter interface {
@@ -12,7 +13,19 @@ import (
 type ExhibitOut struct {
 }
 
-func (lo ExhibitOut) output(outputLocation string, header string, dirsOfInterest []string, sortedKeys []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header string, dirsOfInterest []string, sortedKeys []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+
+	exists, err := exists(outputDir)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		err = os.MkdirAll(outputDir, 0700)
+		if err != nil {
+			return err
+		}
+	}
+
 	einfo := new(EInfo)
 	info := make([]*EItem, 0)
 
@@ -41,7 +54,7 @@ func (lo ExhibitOut) output(outputLocation string, header string, dirsOfInterest
 	//fmt.Printf("%+v\n", info)
 	b, _ := json.Marshal(einfo)
 	//fmt.Println(string(b))
-	err := ioutil.WriteFile("allSoftware.js", b, 0644)
+	err = ioutil.WriteFile("allSoftware.js", b, 0644)
 	if err != nil {
 		return err
 	}
@@ -66,5 +79,14 @@ type EInfo struct {
 	Items []*EItem `json:"items"`
 }
 
-// see http://logd.tw.rpi.edu/tutorial/using_mit_simile_exhibit
-// http://simile-widgets.org/wiki/Exhibit/Hierarchical_Facet
+// From: http://stackoverflow.com/a/10510783
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}

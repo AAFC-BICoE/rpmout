@@ -15,7 +15,7 @@ const IndexSoftware = "Index, Installed Software"
 const IndexLicenses = "Index, Licenses"
 const IndexGroup = "Index, Group"
 
-func (lo LaTeXOut) output(outputLocation string, header string, dirsOfInterest []string, sortedKeys []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+func (lo LaTeXOut) output(outputLocation string, outputBaseFileName string, header string, dirsOfInterest []string, sortedKeys []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
 	fmt.Println("\\documentclass[11pt]{article}")
 	fmt.Println("")
 	fmt.Println("\\usepackage{longtable,microtype,savetrees}")
