@@ -17,10 +17,10 @@ import (
 )
 
 func init() {
-	flag.StringVar(&outputFormat, "outputFormat", "html", "Values: html|html2|json|txt|latex|exhibit")
+	flag.StringVar(&outputFormat, "outputFormat", "txt", "Values: json|txt|latex|exhibit")
 	flag.StringVar(&header, "header", "Installed Software", "gggg")
 	flag.BoolVar(&doR, "R", false, "Find R packages")
-	flag.StringVar(&outputLocation, "o", "rpmoutOut", "Base path and name for output file(s)")
+	flag.StringVar(&outputLocation, "o", "rpmoutOut", "Base path and name for output file(s); only used by outputFormat=exhibit; all other outputs are to stdout")
 }
 
 var outputLocation string = ""
@@ -47,16 +47,12 @@ func handleParameters() bool {
 		fmt.Fprintf(os.Stderr, "\t default <rootDir>: /\n")
 		fmt.Fprintf(os.Stderr, "Args:\n")
 		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, "\nExample:  %s -outputFormat=html /opt /usr/local\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "\nExample:  %s -outputFormat=json /opt /usr/local\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "\nNote that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your path\n\n")
 	}
 
 	flag.Parse()
 	switch outputFormat {
-	case "html":
-		rpmWriter = new(HtmlOut)
-	case "html2":
-		rpmWriter = new(HtmlOut2)
 	case "json":
 		rpmWriter = new(JsonOut)
 
@@ -67,7 +63,9 @@ func handleParameters() bool {
 		rpmWriter = new(LaTeXOut)
 
 	case "exhibit":
-		rpmWriter = new(ExhibitOut)
+		exhibitOut := new(ExhibitOut)
+		exhibitOut.OutputDir = outputLocation
+		rpmWriter = exhibitOut
 
 	default:
 		log.Print("Unknown/unsupported output format: " + outputFormat)

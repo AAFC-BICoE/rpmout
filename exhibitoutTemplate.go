@@ -3,7 +3,7 @@ package main
 const exhibitTemplate = `
 <html>
   <head>
-    <title>Cluster Software</title>
+    <title>{{.Header}}</title>
     
 
     <script src="http://trunk.simile-widgets.org/exhibit/api/exhibit-api.js"></script>

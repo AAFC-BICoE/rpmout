@@ -1,19 +1,25 @@
 package main
 
 import (
+	"bufio"
+	//	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"text/template"
 )
 
-//type RpmWriter interface {
-//	output(string, []string, []string, map[string]*PackageInfo, map[string]bool, map[string]*Node) error
-//}
-
 type ExhibitOut struct {
+	OutputDir string
+}
+
+type TemplateData struct {
+	Header string
 }
 
 func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header string, dirsOfInterest []string, sortedKeys []string, packageInfo map[string]*PackageInfo, groupSet map[string]bool, nodes map[string]*Node) error {
+
+	content := TemplateData{header}
 
 	exists, err := exists(outputDir)
 	if err != nil {
@@ -38,9 +44,6 @@ func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header 
 			item.Type = "RPM Software"
 		}
 
-		//fmt.Println(info)
-		//fmt.Println(p)
-		//fmt.Println(item)
 		item.Group = p.Tags["group"]
 		item.License = p.Tags["license"]
 		item.Description = p.Tags["description"]
@@ -58,10 +61,35 @@ func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header 
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile("rpmout.html", []byte(exhibitTemplate), 0644)
+
+	tmpl, err := template.New("test").Parse(exhibitTemplate)
+
+	// var buffer bytes.Buffer
+	// writer := bufio.NewWriter(&buffer)
+
+	// err = tmpl.Execute(writer, content)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// //err = ioutil.WriteFile("rpmout.html", []byte(exhibitTemplate), 0644)
+	// err = ioutil.WriteFile("rpmout.html", buffer.Bytes(), 0644)
+	// if err != nil {
+	// 	return err
+	// }
+
+	f, err := os.Create("rpmout.html")
 	if err != nil {
 		return err
 	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	err = tmpl.Execute(w, content)
+	if err != nil {
+		return err
+	}
+	w.Flush()
+
 	return nil
 }
 

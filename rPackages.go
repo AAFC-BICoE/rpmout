@@ -92,3 +92,15 @@ func convertRPackage(rpackage RPackage) *PackageInfo {
 	packageInfo.Tags[URL] = rpackage.URL
 	return packageInfo
 }
+
+const rScriptCode = `
+#!/usr/bin/env Rscript
+
+options(repos="http://probability.ca/cran/")
+if("RJSONIO" %in% rownames(installed.packages()) == FALSE) {install.packages("RJSONIO")}
+library("RJSONIO")
+a = installed.packages(fields = c("URL","Title","Description"))
+json = asJSVars(rdata=a)
+json = substring(json, 8, nchar(json)-2)
+cat(json)
+`
