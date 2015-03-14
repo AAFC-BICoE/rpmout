@@ -90,5 +90,7 @@ Copyright, License, Attribution& Acknowledgements
 =====
 * Copyright 2014 Government of Canada
 * MIT License (See LICENSE file)
-* Author: Glen Newton glen.newton@agr.gc.ca glen.newton@gmail.com
-* Developed at: Microbial Biodiversity Bioinformatics Group @ Agriculture and Agri-Food Canada
+* Author: '''Glen Newton''' glen.newton@gmail.com
+* Originally developed at: Microbial Biodiversity Bioinformatics Group @ Agriculture and Agri-Food Canada
+* Ongoing developement by GNewton
+

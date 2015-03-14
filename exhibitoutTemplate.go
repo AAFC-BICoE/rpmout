@@ -68,7 +68,8 @@ const exhibitTemplate = `
   </head> 
 
   <body>
-    <h1>Cluster Software</h1>
+    <h1>Software</h1>
+    Made with <a href="https://github.com/AAFC-MBB/rpmout">rpmout</a> and <a href="http://www.simile-widgets.org/exhibit/">Exhibit</a>
     <table width="100%">
       <tr valign="top">
 	<td ex:role="viewPanel">
