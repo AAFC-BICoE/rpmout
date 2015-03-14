@@ -69,7 +69,6 @@ const exhibitTemplate = `
 
   <body>
     <h1>Software</h1>
-    Made with <a href="https://github.com/AAFC-MBB/rpmout">rpmout</a> and <a href="http://www.simile-widgets.org/exhibit/">Exhibit</a>
     <table width="100%">
       <tr valign="top">
 	<td ex:role="viewPanel">
@@ -105,11 +104,14 @@ const exhibitTemplate = `
 	</td>
 
 	<td width="35%">
+          Made with <a href="https://github.com/AAFC-MBB/rpmout">rpmout</a> and <a href="http://www.simile-widgets.org/exhibit/">Exhibit</a>
+	  <br>
+	  <br>
 	  <b>Search</b>
 	  <div ex:role="facet" ex:facetClass="TextSearch"></div>
+	  <div ex:role="facet" ex:expression=".Type" ex:facetLabel="Type" ex:height="4em">Software Type</div>
 	  <div ex:role="facet" ex:expression=".Group" ex:facetLabel="Group" ex:height="19em">Software Group</div>
 	  <div ex:role="facet" ex:sortMode="count" ex:expression=".License" ex:facetLabel="License"  ex:height="19em">License</div>
-	  <div ex:role="facet" ex:expression=".Type" ex:facetLabel="Type" ex:height="4em">Software Type</div>
         </td>
       </tr>
     </table>
