@@ -83,7 +83,7 @@ var rpmWriter RpmWriter
 
 func main() {
 
-	runtime.GOMAXPROCS(8)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	_, err := exec.LookPath(allRpmsExec[0])
 
@@ -376,4 +376,8 @@ func add(rpms map[string]*PackageInfo, rpacks map[string]*PackageInfo) {
 	for k, v := range rpacks {
 		rpms[k] = v
 	}
+}
+
+func FindJarsInRpm(rpmname string) {
+
 }
