@@ -47,7 +47,7 @@ Exhibit also allows for the full-text filter search of the fields in the JSON, a
 
 Here is an [example screenshot](https://raw.githubusercontent.com/AAFC-MBB/rpmout/master/images/rpmout_exhibit.jpg "Exhibit example") of the Exhibit output.
 
-Here is a (live example)[http://69.28.82.165/tmp/rpmout.html].
+Here is a [live example](http://69.28.82.165/tmp/rpmout.html).
 
 ###LaTeX###
 
