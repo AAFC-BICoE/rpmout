@@ -4,7 +4,7 @@ rpmout
 rpmout is a utility for extracting RPM packages and (optionally) R packages that are installed on a Linux system.
 It is written in Go.
 
-It extracts the RPM tag info (using the rpm command) and optionally, R packages, and produces an HTML list fragment (default), JSON, simple text, and LaTeX.
+It extracts the RPM tag info (using the rpm command) and optionally, R packages, and produces simple text output (default), JSON, LaTeX and at [Exhibit](http://simile-widgets.org/exhibit) HTML page with associated JSON file.o
 It can be restricted to the RPMS that are implicated in a particular set of directories.
 
 The LaTeX version creates three indexes of packages:
@@ -20,13 +20,31 @@ For example: users want to know what is installed in the bioinformatics install 
 This fragment is meant to be embedded into a static HTML page that wraps it with the appropriate local style, titles it, etc.
 
 ###Usage###
-     rpmout <args> <rootDir0>...<rootDirN>
-     default <rootDir>=/
-     Args:
-     -R=false: Find R packages (only works with LaTeX right now)
-     -outputFormat="html": Values: html|json|txt|latex
-     -header="This is a header"; default: "Installed Software"
-     Example:  rpmout -outputFormat=html /opt /usr/local
+Usage of ./rpmout:
+```
+	 ./rpmout <args> <rootDir0>...<rootDirN>
+	 default <rootDir>: /
+Args:
+  -R=false: Find R packages
+  -header="Installed Software": gggg
+  -o="rpmoutOut": Base path and name for output file(s); only used by outputFormat=exhibit; all other outputs are to stdout
+  -outputFormat="txt": Values: json|txt|latex|exhibit
+
+Example:  ./rpmout -outputFormat=json /opt /usr/local
+
+Note that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your path
+```
+
+###Exhibit###
+[Exhibit](http://simile-widgets.org/exhibit) offers a faceted interface to information.
+In this case, the RPM packages, and optionally, R packages, can be displayed.
+The facets offered are:
+* Type (RPM or R)
+* [Group](http://www.rpmfind.net/linux/RPM/Groups.html)
+* License
+
+Here is an example:
+[Exhibit example](https://raw.githubusercontent.com/AAFC-MBB/rpmout/master/images/rpmout_exhibit.jpg "Exhibit example")
 
 ###LaTeX###
 
@@ -43,7 +61,7 @@ Right now, for the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout
     $ acroread all.pdf
 ```
 
-###Dependencies###
+###LaTeX Dependencies###
 * The 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be in your PATH
 * If you want 'R' packages, the 'R' command needs to be in your PATH
 * `rpmoutlatex2pdf.sh` needs a reasonable modern instance of 'tex/LaTeX' installed
@@ -63,10 +81,6 @@ splitidx.
 
 rpmout is a 64bit compiled on Fedora 18 binary, go version go1.3 linux/amd64
 
-###Sample output###
-
-####HTML####
-[sample.html.gz](https://github.com/gnewton/rpmout/blob/master/sample.html.gz) is an example, from running 'rpmout /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big page (~1.4MB ungziped).
 
 ####LaTeX####
 [sample.tex.gz](https://github.com/gnewton/rpmout/blob/master/sample.tex.gz) is an example, from running 'rpmout -R -outputFormat=latex /' on my Fedora 18 laptop. As it is looking for all rpms, it is a big document. The PDF is sample.pdf.gz, has 545 pages and is  ~1.8MB
