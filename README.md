@@ -39,16 +39,17 @@ Note that the 'rpm' program (http://www.rpm.org/max-rpm/rpm.8.html) needs to be 
 [Exhibit](http://simile-widgets.org/exhibit) offers a faceted interface to information.
 In this case, the RPM packages, and optionally, R packages, can be displayed.
 The facets offered are:
-* Type (RPM or R)
-* [Group](http://www.rpmfind.net/linux/RPM/Groups.html)
-* License
+* Type of package (RPM or R)
+* Software [Group](http://www.rpmfind.net/linux/RPM/Groups.html)
+* Software License
 
-Here is an example screenshot of the Exhibit output:
-[Exhibit examplem](https://raw.githubusercontent.com/AAFC-MBB/rpmout/master/images/rpmout_exhibit.jpg "Exhibit example")
+Exhibit also allows for the full-text filter search of the fields in the JSON, and grouping of results by various fields.
+
+Here is an [example screenshot](https://raw.githubusercontent.com/AAFC-MBB/rpmout/master/images/rpmout_exhibit.jpg "Exhibit example") of the Exhibit output.
+
+Here is a (live example)[http://69.28.82.165/tmp/rpmout.html].
 
 ###LaTeX###
-
-**NB**: The LaTeX output right now is the only one that includes R packages.
 
 To generate a PDF from the LaTeX output:
 Right now, for the LaTeX file produced by rpmout, rpmoutlatex2pdf.sh, and rpmout.R all need to be in the same directory (to be fixed):
@@ -90,6 +91,13 @@ The original single threaded Ruby version I prototyped takes about 4 1/2 minutes
 The reason for creating `rpmout` is to generate a list of packages for the [Rocks cluster](http://www.rocksclusters.org) I manage at Agriculture and Agri-Food Canada.
 
 ###TODO###
+
+* Exhibit
+.. <title> should be settable; right now is fixed at "Installed Software"
+..* Output file names for Exhibit output should be settable; right now: "rpmout.html" and "allSoftware.js"
+..* Source for Exhibit library should be settable; right now: "http://trunk.simile-widgets.org/exhibit/api/exhibit-api.js"
+..* Should be able to set order of facets (right now Type, Group, License?
+
 
 * Move to Go package html/template, and allow the user to supply an arbitrary template for HTML output
 * testing
