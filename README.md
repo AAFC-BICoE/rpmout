@@ -43,8 +43,8 @@ The facets offered are:
 * [Group](http://www.rpmfind.net/linux/RPM/Groups.html)
 * License
 
-Here is an example:
-[Exhibit example](https://raw.githubusercontent.com/AAFC-MBB/rpmout/master/images/rpmout_exhibit.jpg "Exhibit example")
+Here is an example screenshot of the Exhibit output:
+[Exhibit examplem](https://raw.githubusercontent.com/AAFC-MBB/rpmout/master/images/rpmout_exhibit.jpg "Exhibit example")
 
 ###LaTeX###
 
