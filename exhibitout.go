@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"fmt"
+	"strings"
 	//	"bytes"
 	"encoding/json"
 	"io/ioutil"
@@ -34,6 +36,8 @@ func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header 
 
 	einfo := new(EInfo)
 	info := make([]*EItem, 0)
+
+	makeExhibitHierarchy(info, packageInfo)
 
 	for _, p := range packageInfo {
 		item := new(EItem)
@@ -94,13 +98,14 @@ func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header 
 }
 
 type EItem struct {
-	Label            string `json:"label"`
-	Group            string
-	ShortDescription string `json:"ShortDescription"`
-	License          string
-	Description      string
-	Url              string
-	Type             string
+	Label            string `json:"label,omitempty"`
+	Group            string `json:",omitempty"`
+	ShortDescription string `json:"ShortDescription,omitempty"`
+	License          string `json:",omitempty"`
+	Description      string `json:",omitempty"`
+	Url              string `json:",omitempty"`
+	Type             string `json:",omitempty"`
+	SubtopicOf       string `json:"subtopicOf,omitempty"`
 }
 
 type EInfo struct {
@@ -117,4 +122,43 @@ func exists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func makeExhibitHierarchy(info []*EItem, packageInfo map[string]*PackageInfo) {
+	fmt.Println("makeExhibitHierarchy")
+	groups := make(map[string]bool)
+
+	for _, p := range packageInfo {
+		if !p.IsR {
+			fullGroup := p.Tags["group"]
+			fmt.Println("fullGroup=" + fullGroup)
+			if fullGroup != "" {
+				if _, ok := groups[fullGroup]; !ok {
+					groups[fullGroup] = true
+
+					makeHierarchyItems(fullGroup, info)
+				}
+			}
+		}
+	}
+}
+
+func makeHierarchyItems(fullGroup string, info []*EItem) {
+	fmt.Println("  makeHierarchyItems")
+	fmt.Println(fullGroup)
+	parent := ""
+
+	parts := strings.Split(fullGroup, "/")
+
+	for _, part := range parts {
+		fmt.Println("  ---" + part)
+		item := new(EItem)
+		item.Type = "Foo"
+		item.Label = part
+		if parent != "" {
+			item.SubtopicOf = parent
+		}
+		parent = part
+		info = append(info, item)
+	}
 }
