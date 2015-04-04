@@ -109,9 +109,9 @@ const exhibitTemplate = `
 	  <br>
 	  <b>Search</b>
 	  <div ex:role="facet" ex:facetClass="TextSearch"></div>
-	  <div ex:role="facet" ex:expression=".Type" ex:facetLabel="Type" ex:height="4em">Software Type</div>
-	  <div ex:role="facet" ex:expression=".Group" ex:facetLabel="Group" ex:height="19em">Software Group</div>
-	  <div ex:role="facet" ex:sortMode="count" ex:expression=".License" ex:facetLabel="License"  ex:height="19em">License</div>
+	  <div ex:role="facet" ex:expression=".Type" ex:facetLabel="Type" ex:height="3em">Software Type</div>
+	  <div ex:role="facet" ex:expression=".Group" ex:facetLabel="Group" ex:height="15em">Software Group</div>
+	  <div ex:role="facet" ex:sortMode="count" ex:expression=".License" ex:facetLabel="License"  ex:height="15em">License</div>
         </td>
       </tr>
     </table>
