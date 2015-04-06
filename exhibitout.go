@@ -2,12 +2,11 @@ package main
 
 import (
 	"bufio"
-	"fmt"
-	"strings"
-	//	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -58,29 +57,15 @@ func (lo ExhibitOut) output(outputDir string, outputFileBaseName string, header 
 		info = append(info, item)
 	}
 	einfo.Items = info
-	//fmt.Printf("%+v\n", info)
+
 	b, _ := json.Marshal(einfo)
-	//fmt.Println(string(b))
+
 	err = ioutil.WriteFile("allSoftware.js", b, 0644)
 	if err != nil {
 		return err
 	}
 
 	tmpl, err := template.New("test").Parse(exhibitTemplate)
-
-	// var buffer bytes.Buffer
-	// writer := bufio.NewWriter(&buffer)
-
-	// err = tmpl.Execute(writer, content)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// //err = ioutil.WriteFile("rpmout.html", []byte(exhibitTemplate), 0644)
-	// err = ioutil.WriteFile("rpmout.html", buffer.Bytes(), 0644)
-	// if err != nil {
-	// 	return err
-	// }
 
 	f, err := os.Create("rpmout.html")
 	if err != nil {
