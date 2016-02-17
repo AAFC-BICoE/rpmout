@@ -49,6 +49,16 @@ Here is an [example screenshot](https://raw.githubusercontent.com/AAFC-MBB/rpmou
 
 Here is a [live example](http://69.28.82.165/tmp/rpmout.html).
 
+###CSV###
+It's difficult to manipulate the output in JSON, HTML, and PDF formats.  You can convert the JSON output to a CSV file using the provided python script: json2csv.py .
+
+```
+Example: Generate the list of RPMs in JSON and convert it to a CSV file
+
+	./rpmout outputFormat=json /opt > rpms.json
+	python json2csv.py -i rpms.json -o rpms.csv
+```
+
 ###LaTeX###
 
 To generate a PDF from the LaTeX output:
@@ -108,7 +118,7 @@ The reason for creating `rpmout` is to generate a list of packages for the [Rock
 * show location of any executables?
 * show location of any libraries? 
 
-Copyright, License, Attribution& Acknowledgements
+Copyright, License, Attribution & Acknowledgements
 =====
 * Copyright 2014 Government of Canada
 * MIT License (See LICENSE file)
