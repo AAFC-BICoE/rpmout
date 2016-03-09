@@ -102,11 +102,11 @@ The reason for creating `rpmout` is to generate a list of packages for the [Rock
 
 ###TODO###
 
-* Exhibit
-.. <title> should be settable; right now is fixed at "Installed Software"
-.. Output file names for Exhibit output should be settable; right now: "rpmout.html" and "allSoftware.js"
-.. Source for Exhibit library should be settable; right now: "http://trunk.simile-widgets.org/exhibit/api/exhibit-api.js"
-.. Should be able to set order of facets (right now Type, Group, License?
+Exhibit
+* <title> should be settable; right now is fixed at "Installed Software"
+* Output file names for Exhibit output should be settable; right now: "rpmout.html" and "allSoftware.js"
+* Source for Exhibit library should be settable; right now: "http://trunk.simile-widgets.org/exhibit/api/exhibit-api.js"
+* Should be able to set order of facets (right now Type, Group, License?
 
 
 * Move to Go package html/template, and allow the user to supply an arbitrary template for HTML output
