@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	flag.StringVar(&outputFormat, "outputFormat", "txt", "Values: json|txt|latex|exhibit")
+	flag.StringVar(&outputFormat, "outputFormat", "txt", "Values: json|txt|latex|exhibit|csv")
 	flag.StringVar(&header, "header", "Installed Software", "gggg")
 	flag.BoolVar(&doR, "R", false, "Find R packages")
 	flag.StringVar(&outputLocation, "o", "rpmoutOut", "Base path and name for output file(s); only used by outputFormat=exhibit; all other outputs are to stdout")
@@ -61,6 +61,9 @@ func handleParameters() bool {
 
 	case "latex":
 		rpmWriter = new(LaTeXOut)
+
+	case "csv":
+		rpmWriter = new(CsvOut)
 
 	case "exhibit":
 		exhibitOut := new(ExhibitOut)
