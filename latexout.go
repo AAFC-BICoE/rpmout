@@ -337,10 +337,9 @@ func escapeLatex(v string) string {
 
 	v = strings.Replace(v, "#", "\\#", -1)
 	v = strings.Replace(v, "%", "\\%", -1)
-	v = strings.Replace(v, "^", "\\^{}", -1)
+	v = strings.Replace(v, "^", "{\\textasciicircum}", -1)
 	v = strings.Replace(v, "&", "\\&", -1)
-
-	v = strings.Replace(v, "~", "\\~{}", -1)
+	v = strings.Replace(v, "~", "{\\textasciitilde}", -1)
 
 	return v
 }
